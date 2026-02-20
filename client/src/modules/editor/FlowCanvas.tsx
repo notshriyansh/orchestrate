@@ -91,8 +91,11 @@ export default function FlowCanvas({
             addEdge(
               {
                 ...params,
-                type: "smoothstep",
-                style: { stroke: "#64748b", strokeWidth: 3 },
+                type: "custom",
+                data: {
+                  onDelete: (id: string) =>
+                    setEdges((eds: any[]) => eds.filter((e) => e.id !== id)),
+                },
               },
               eds,
             ),

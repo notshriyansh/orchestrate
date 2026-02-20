@@ -10,12 +10,14 @@ router.post("/", authenticate, async (req: AuthRequest, res) => {
       return res.status(401).json({ message: "Unauthorized" });
     }
 
+    const { name, nodes, edges } = req.body;
+
     const workflow = await prisma.workflow.create({
       data: {
-        name: req.body.name || "Untitled Workflow",
+        name: name || "Untitled Workflow",
         userId: req.user.id,
-        nodes: [],
-        edges: [],
+        nodes: nodes || [],
+        edges: edges || [],
       },
     });
 

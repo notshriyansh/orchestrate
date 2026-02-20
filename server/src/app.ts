@@ -5,6 +5,7 @@ import { authenticate } from "./middleware/auth.middleware.js";
 import workflowRoutes from "./modules/workflow/workflow.routes.js";
 import executionRoutes from "./modules/execution/execution.routes.js";
 import postmanImportRoute from "./modules/postman/postman-import.route.js";
+import templateRoutes from "./modules/template/template.routes.js";
 
 const app = express();
 
@@ -24,5 +25,7 @@ app.get("/me", authenticate, (req: any, res) => {
 });
 
 app.use("/api/workflows", workflowRoutes);
+
+app.use("/api/templates", templateRoutes);
 
 export default app;

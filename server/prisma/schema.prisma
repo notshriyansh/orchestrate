@@ -42,3 +42,13 @@ model Execution {
 
   workflow    Workflow @relation(fields: [workflowId], references: [id])
 }
+
+model Template {
+  id          String   @id @default(uuid())
+  name        String
+  description String
+  category    String
+  nodes       Json
+  edges       Json
+  createdAt   DateTime @default(now())
+}

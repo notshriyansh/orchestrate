@@ -2,44 +2,31 @@ import { Router } from "express";
 import { prisma } from "../../lib/prisma.js";
 import { authenticate, AuthRequest } from "../../middleware/auth.middleware.js";
 import { executeWorkflow } from "./execution.service.js";
+import { Prisma } from "@prisma/client";
 
 const router = Router();
 
-router.post("/:workflowId", authenticate, async (req, res) => {
+router.post("/", authenticate, async (req: AuthRequest, res) => {
   try {
-    const workflowId = req.params.workflowId as string;
-
-    const workflow = await prisma.workflow.findUnique({
-      where: { id: workflowId },
-    });
-
-    if (!workflow) {
-      return res.status(404).json({ error: "Workflow not found" });
+    if (!req.user) {
+      return res.status(401).json({ message: "Unauthorized" });
     }
 
-    const nodes = workflow.nodes as any[];
-    const edges = workflow.edges as any[];
+    const { name, nodes, edges } = req.body;
 
-    const logs = await executeWorkflow(nodes, edges);
-
-    const execution = await prisma.execution.create({
+    const workflow = await prisma.workflow.create({
       data: {
-        workflowId,
-        status: "completed",
-        startedAt: new Date(),
-        finishedAt: new Date(),
-        logs,
+        name: name || "Untitled Workflow",
+        userId: req.user.id,
+        nodes: (nodes ?? []) as Prisma.InputJsonValue,
+        edges: (edges ?? []) as Prisma.InputJsonValue,
       },
     });
 
-    return res.json(execution);
-  } catch (error: any) {
-    console.error("Execution error:", error);
-
-    return res.status(500).json({
-      error: "Execution failed",
-      message: error.message,
-    });
+    res.json(workflow);
+  } catch (err) {
+    console.error("Create workflow error:", err);
+    res.status(500).json({ error: "Failed to create workflow" });
   }
 });
 
