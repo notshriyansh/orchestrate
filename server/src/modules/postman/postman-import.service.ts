@@ -16,6 +16,8 @@ interface FlowEdge {
   id: string;
   source: string;
   target: string;
+  type?: string;
+  style?: any;
 }
 
 export function importPostmanCollection(collection: PostmanCollection) {
@@ -28,7 +30,7 @@ export function importPostmanCollection(collection: PostmanCollection) {
     variables[v.key] = v.value;
   });
 
-  function resolveVars(value: string) {
+  function resolveVars(value: string): string {
     if (!value) return value;
 
     return value.replace(/{{(.*?)}}/g, (_, key) => {
@@ -36,32 +38,7 @@ export function importPostmanCollection(collection: PostmanCollection) {
     });
   }
 
-  function extractItems(items: any[], parentId?: string) {
-    items.forEach((item) => {
-      if (item.item) {
-        extractItems(item.item, parentId);
-      } else if (item.request) {
-        const nodeId = createNodeFromRequest(item.request, item.name);
-
-        if (parentId) {
-          edges.push({
-            id: uuid(),
-            source: parentId,
-            target: nodeId,
-            type: "smoothstep",
-            style: {
-              stroke: "#64748b",
-              strokeWidth: 3,
-            },
-          });
-        }
-
-        parentId = nodeId;
-      }
-    });
-  }
-
-  function createNodeFromRequest(request: any, name: string) {
+  function createNodeFromRequest(request: any, name: string): string {
     const id = uuid();
 
     let url = "";
@@ -118,13 +95,32 @@ export function importPostmanCollection(collection: PostmanCollection) {
       },
     });
 
-    if (nodes.length > 1) {
-      edges.push({
-        id: uuid(),
-        source: nodes[nodes.length - 2].id,
-        target: id,
-      });
-    }
+    return id;
+  }
+
+  function extractItems(items: any[], parentId?: string) {
+    items.forEach((item) => {
+      if (item.item && Array.isArray(item.item)) {
+        extractItems(item.item, parentId);
+      } else if (item.request) {
+        const nodeId = createNodeFromRequest(item.request, item.name);
+
+        if (parentId) {
+          edges.push({
+            id: uuid(),
+            source: parentId,
+            target: nodeId,
+            type: "smoothstep",
+            style: {
+              stroke: "#64748b",
+              strokeWidth: 3,
+            },
+          });
+        }
+
+        parentId = nodeId;
+      }
+    });
   }
 
   extractItems(collection.item);
@@ -182,8 +178,8 @@ function layoutNodes(nodes: FlowNode[], edges: FlowEdge[]) {
     if (node) grouped[level].push(node);
   });
 
-  const horizontalSpacing = 350;
-  const verticalSpacing = 160;
+  const horizontalSpacing = 380;
+  const verticalSpacing = 180;
 
   Object.entries(grouped).forEach(([levelStr, levelNodes]) => {
     const level = Number(levelStr);
