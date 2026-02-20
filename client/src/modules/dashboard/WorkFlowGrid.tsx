@@ -32,7 +32,14 @@ export default function WorkflowGrid() {
   }
 
   if (!workflows.length) {
-    return <div style={{ color: "white" }}>No workflows yet.</div>;
+    return (
+      <div className="flex flex-col items-center justify-center py-24 text-center">
+        <div className="text-2xl font-semibold mb-4">No workflows yet</div>
+        <p className="text-muted-foreground mb-6">
+          Create your first API orchestration flow.
+        </p>
+      </div>
+    );
   }
 
   return (

@@ -1,85 +1,32 @@
 export default function Sidebar() {
-  const itemStyle = {
-    padding: "12px 14px",
-    borderRadius: 8,
-    background: "#1f2937",
-    border: "1px solid #374151",
-    cursor: "grab",
-    fontSize: 14,
-    fontWeight: 500,
-    marginBottom: 12,
-  };
-
   const onDragStart = (event: React.DragEvent, type: string) => {
     event.dataTransfer.setData("application/reactflow", type);
     event.dataTransfer.effectAllowed = "move";
   };
 
-  return (
+  const NodeItem = ({ label, type }: { label: string; type: string }) => (
     <div
-      style={{
-        width: 220,
-        padding: 20,
-        borderRight: "1px solid #1f2937",
-        background: "#111827",
-      }}
+      draggable
+      onDragStart={(e) => onDragStart(e, type)}
+      className="p-3 rounded-lg bg-slate-800 hover:bg-slate-700 border border-white/10 cursor-grab text-sm font-medium transition"
     >
-      <h3 style={{ marginBottom: 20 }}>Nodes</h3>
+      {label}
+    </div>
+  );
 
-      <div
-        draggable
-        onDragStart={(e) => onDragStart(e, "http")}
-        style={itemStyle}
-      >
-        HTTP
-      </div>
+  return (
+    <div className="w-56 p-5 border-r border-white/10 bg-slate-900/70 backdrop-blur-xl flex flex-col gap-4">
+      <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide">
+        Nodes
+      </h3>
 
-      <div
-        draggable
-        onDragStart={(e) => onDragStart(e, "delay")}
-        style={itemStyle}
-      >
-        Delay
-      </div>
-
-      <div
-        draggable
-        onDragStart={(e) => onDragStart(e, "condition")}
-        style={itemStyle}
-      >
-        Condition
-      </div>
-      <div
-        draggable
-        onDragStart={(e) => onDragStart(e, "webhook")}
-        style={itemStyle}
-      >
-        Webhook
-      </div>
-
-      <div
-        draggable
-        onDragStart={(e) => onDragStart(e, "transform")}
-        style={itemStyle}
-      >
-        Transform
-      </div>
-
-      <div
-        draggable
-        onDragStart={(e) => onDragStart(e, "database")}
-        style={itemStyle}
-      >
-        Database
-      </div>
-
-      <div
-        draggable
-        onDragStart={(e) => onDragStart(e, "parallel")}
-        style={itemStyle}
-      >
-        Parallel
-      </div>
+      <NodeItem label="HTTP" type="http" />
+      <NodeItem label="Delay" type="delay" />
+      <NodeItem label="Condition" type="condition" />
+      <NodeItem label="Webhook" type="webhook" />
+      <NodeItem label="Transform" type="transform" />
+      <NodeItem label="Database" type="database" />
+      <NodeItem label="Parallel" type="parallel" />
     </div>
   );
 }

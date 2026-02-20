@@ -1,3 +1,4 @@
+import { useState } from "react";
 import NodeInspector from "./NodeInspector";
 
 export default function RightPanel({
@@ -5,47 +6,52 @@ export default function RightPanel({
   history,
   setSelectedExecution,
 }: any) {
-  return (
-    <div
-      style={{
-        width: 320,
-        padding: 20,
-        borderLeft: "1px solid #1f2937",
-        background: "#111827",
-        overflowY: "auto",
-      }}
-    >
-      {selectedNode ? (
-        <NodeInspector node={selectedNode} />
-      ) : (
-        <>
-          <h3 style={{ marginBottom: 16 }}>Execution Timeline</h3>
+  const [tab, setTab] = useState<"inspector" | "history">("history");
 
-          {history.map((exec: any) => (
+  return (
+    <div className="w-80 border-l border-white/10 bg-slate-900/70 backdrop-blur-xl flex flex-col">
+      <div className="flex border-b border-white/10">
+        <button
+          onClick={() => setTab("history")}
+          className={`flex-1 py-3 text-sm ${
+            tab === "history"
+              ? "text-blue-400 border-b-2 border-blue-400"
+              : "text-muted-foreground"
+          }`}
+        >
+          History
+        </button>
+        <button
+          onClick={() => setTab("inspector")}
+          className={`flex-1 py-3 text-sm ${
+            tab === "inspector"
+              ? "text-blue-400 border-b-2 border-blue-400"
+              : "text-muted-foreground"
+          }`}
+        >
+          Inspector
+        </button>
+      </div>
+
+      <div className="flex-1 overflow-y-auto p-5">
+        {tab === "inspector" && selectedNode && (
+          <NodeInspector node={selectedNode} />
+        )}
+
+        {tab === "history" &&
+          history.map((exec: any) => (
             <div
               key={exec.id}
               onClick={() => setSelectedExecution(exec)}
-              style={{
-                padding: 12,
-                borderRadius: 8,
-                background: "#1f2937",
-                marginBottom: 12,
-                cursor: "pointer",
-                border:
-                  exec.status === "success"
-                    ? "1px solid #22c55e"
-                    : "1px solid #ef4444",
-              }}
+              className="p-4 mb-3 rounded-lg bg-slate-800 hover:bg-slate-700 transition cursor-pointer border border-white/5"
             >
-              <div style={{ fontWeight: 600 }}>{exec.status.toUpperCase()}</div>
-
-              <div style={{ fontSize: 12, opacity: 0.6 }}>
+              <div className="font-medium">{exec.status.toUpperCase()}</div>
+              <div className="text-xs opacity-60">
                 {new Date(exec.startedAt).toLocaleTimeString()}
               </div>
             </div>
           ))}
-        </>
-      )}
+      </div>
     </div>
   );
 }

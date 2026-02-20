@@ -10,7 +10,6 @@ export default function CustomEdge(props: any) {
     targetY,
     sourcePosition,
     targetPosition,
-    style,
     markerEnd,
     data,
   } = props;
@@ -26,29 +25,22 @@ export default function CustomEdge(props: any) {
 
   return (
     <>
-      <BaseEdge path={edgePath} style={style} markerEnd={markerEnd} />
+      <BaseEdge
+        path={edgePath}
+        markerEnd={markerEnd}
+        style={{ strokeWidth: 3 }}
+      />
 
       <EdgeLabelRenderer>
         <div
+          className="absolute pointer-events-auto"
           style={{
-            position: "absolute",
             transform: `translate(-50%, -50%) translate(${labelX}px,${labelY}px)`,
-            pointerEvents: "all",
           }}
         >
           <button
-            onClick={() => data.onDelete(id)}
-            style={{
-              background: "#ef4444",
-              border: "none",
-              borderRadius: "50%",
-              width: 24,
-              height: 24,
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              cursor: "pointer",
-            }}
+            onClick={() => data?.onDelete?.(id)}
+            className="w-6 h-6 rounded-full bg-red-500 hover:bg-red-400 transition flex items-center justify-center shadow-md"
           >
             <Trash2 size={14} color="white" />
           </button>

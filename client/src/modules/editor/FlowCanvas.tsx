@@ -1,4 +1,4 @@
-import React, { useCallback } from "react";
+import React, { useCallback, useMemo } from "react";
 import ReactFlow, {
   addEdge,
   Background,
@@ -19,20 +19,6 @@ import DatabaseNode from "./nodes/DatabaseNode";
 import ParallelNode from "./nodes/ParallelNode";
 import CustomEdge from "./edges/CustomEdges";
 
-const nodeTypes = {
-  http: HttpNode,
-  delay: DelayNode,
-  condition: ConditionNode,
-  webhook: WebhookNode,
-  transform: TransformNode,
-  database: DatabaseNode,
-  parallel: ParallelNode,
-};
-
-const edgeTypes = {
-  custom: CustomEdge,
-};
-
 export default function FlowCanvas({
   nodes,
   edges,
@@ -41,6 +27,26 @@ export default function FlowCanvas({
   setSelectedNode,
 }: any) {
   const { project } = useReactFlow();
+
+  const nodeTypes = useMemo(
+    () => ({
+      http: HttpNode,
+      delay: DelayNode,
+      condition: ConditionNode,
+      webhook: WebhookNode,
+      transform: TransformNode,
+      database: DatabaseNode,
+      parallel: ParallelNode,
+    }),
+    [],
+  );
+
+  const edgeTypes = useMemo(
+    () => ({
+      custom: CustomEdge,
+    }),
+    [],
+  );
 
   const onDragOver = useCallback((event: React.DragEvent) => {
     event.preventDefault();
@@ -74,12 +80,22 @@ export default function FlowCanvas({
     [project, setNodes],
   );
 
+  const styledNodes = useMemo(
+    () =>
+      nodes.map((node: any) => ({
+        ...node,
+        className: node.data?.status === "running" ? "node-running" : "",
+      })),
+    [nodes],
+  );
+
   return (
-    <div style={{ flex: 1, height: "100%", width: "100%" }}>
+    <div className="flex-1 h-full w-full">
       <ReactFlow
-        nodes={nodes}
+        nodes={styledNodes}
         edges={edges}
         nodeTypes={nodeTypes}
+        edgeTypes={edgeTypes}
         onNodesChange={(changes) =>
           setNodes((nds: any) => applyNodeChanges(changes, nds))
         }
@@ -87,14 +103,14 @@ export default function FlowCanvas({
           setEdges((eds: any) => applyEdgeChanges(changes, eds))
         }
         onConnect={(params) =>
-          setEdges((eds: any) =>
+          setEdges((eds: any[]) =>
             addEdge(
               {
                 ...params,
                 type: "custom",
                 data: {
                   onDelete: (id: string) =>
-                    setEdges((eds: any[]) => eds.filter((e) => e.id !== id)),
+                    setEdges((prev: any[]) => prev.filter((e) => e.id !== id)),
                 },
               },
               eds,

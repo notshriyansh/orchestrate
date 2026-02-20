@@ -53,11 +53,11 @@ export default function EditorHeader({
   };
 
   return (
-    <div className="editor-header">
+    <div className="h-16 px-6 flex items-center justify-between backdrop-blur-lg bg-slate-900/70 border-b border-white/10">
       <input
         value={workflowName}
         onChange={(e) => setWorkflowName(e.target.value)}
-        className="workflow-title"
+        className="text-lg font-semibold bg-transparent outline-none border-b border-transparent focus:border-blue-500 transition"
       />
 
       <div style={{ display: "flex", gap: 12 }}>
