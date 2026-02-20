@@ -28,7 +28,11 @@ export default function CustomEdge(props: any) {
       <BaseEdge
         path={edgePath}
         markerEnd={markerEnd}
-        style={{ strokeWidth: 3 }}
+        style={{
+          strokeWidth: 3,
+          strokeDasharray: data?.active ? "5 5" : undefined,
+          animation: data?.active ? "dash 1s linear infinite" : undefined,
+        }}
       />
 
       <EdgeLabelRenderer>

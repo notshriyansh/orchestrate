@@ -3,7 +3,12 @@ import BaseNode from "./BaseNode";
 
 export default function DatabaseNode({ data }: any) {
   return (
-    <BaseNode icon={<Database size={16} />} title="Database" color="#14b8a6">
+    <BaseNode
+      icon={<Database size={16} />}
+      title="Database"
+      accentColor="#14b8a6"
+      data={data}
+    >
       {data.label || "DB Operation"}
     </BaseNode>
   );

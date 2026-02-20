@@ -1,44 +1,41 @@
-import type { ReactNode } from "react";
 import { Handle, Position } from "reactflow";
+import type { ReactNode } from "react";
 
 export default function BaseNode({
   icon,
   title,
-  color,
+  accentColor,
+  data,
   children,
 }: {
   icon: ReactNode;
   title: string;
-  color: string;
+  accentColor: string;
+  data: any;
   children?: ReactNode;
 }) {
+  const statusClass =
+    data.status === "running"
+      ? "node-running"
+      : data.status === "success"
+        ? "node-success"
+        : data.status === "error"
+          ? "node-error"
+          : "";
+
   return (
     <div
-      style={{
-        width: 14,
-        height: 14,
-        background: "#38bdf8",
-        border: "2px solid white",
-        borderRadius: "50%",
-      }}
+      className={`min-w-40 rounded-xl bg-slate-800 border border-white/10 p-4 text-white transition-all duration-300 ${statusClass}`}
     >
       <Handle type="target" position={Position.Left} />
       <Handle type="source" position={Position.Right} />
 
-      <div
-        style={{
-          display: "flex",
-          alignItems: "center",
-          gap: 8,
-          marginBottom: 6,
-          color,
-        }}
-      >
-        {icon}
+      <div className="flex items-center gap-2 mb-2">
+        <span style={{ color: accentColor }}>{icon}</span>
         <strong>{title}</strong>
       </div>
 
-      <div style={{ fontSize: 12, opacity: 0.7 }}>{children}</div>
+      <div className="text-xs opacity-70">{children}</div>
     </div>
   );
 }

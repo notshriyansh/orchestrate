@@ -18,7 +18,7 @@ export default function FlowEditor() {
   const { id } = useParams();
   const navigate = useNavigate();
 
-  const [workflowId, setWorkflowId] = useState<string | undefined>(undefined);
+  const [workflowId, setWorkflowId] = useState<string>();
   const [nodes, setNodes] = useState<any[]>([]);
   const [edges, setEdges] = useState<any[]>([]);
   const [workflowName, setWorkflowName] = useState("Untitled Workflow");
@@ -29,7 +29,6 @@ export default function FlowEditor() {
   const [isRunning, setIsRunning] = useState(false);
 
   useExecutionSocket(setNodes);
-
   useWorkflowAutoSave(workflowId, nodes, edges, workflowName);
 
   useEffect(() => {
@@ -43,12 +42,8 @@ export default function FlowEditor() {
           const res = await api.post(
             "/api/workflows",
             {},
-            {
-              headers: { Authorization: `Bearer ${token}` },
-            },
+            { headers: { Authorization: `Bearer ${token}` } },
           );
-
-          setWorkflowId(res.data.id);
           navigate(`/editor/${res.data.id}`, { replace: true });
           return;
         }
@@ -79,74 +74,82 @@ export default function FlowEditor() {
     const res = await api.get(`/api/execute/history/${wid}`, {
       headers: { Authorization: `Bearer ${token}` },
     });
-
     setHistory(res.data);
   };
 
   const runWorkflow = async () => {
     if (!workflowId) return;
 
-    try {
-      const token = await auth.currentUser?.getIdToken();
-      if (!token) return;
+    const token = await auth.currentUser?.getIdToken();
+    if (!token) return;
+
+    setNodes((prev) =>
+      prev.map((n) => ({
+        ...n,
+        data: { ...n.data, status: "idle" },
+      })),
+    );
+
+    setIsRunning(true);
+
+    await api.post(
+      `/api/execute/${workflowId}`,
+      {},
+      { headers: { Authorization: `Bearer ${token}` } },
+    );
+
+    await loadHistory(workflowId, token);
+    setIsRunning(false);
+  };
+
+  const replayExecution = async (execution: any) => {
+    if (!execution?.logs?.length) return;
+
+    setIsRunning(true);
+
+    setNodes((prev) =>
+      prev.map((n) => ({
+        ...n,
+        data: { ...n.data, status: "idle" },
+      })),
+    );
+
+    for (const log of execution.logs) {
+      await new Promise((res) => setTimeout(res, 600));
 
       setNodes((prev) =>
-        prev.map((n) => ({
-          ...n,
-          data: { ...n.data, status: "idle" },
-        })),
+        prev.map((n) =>
+          n.id === log.nodeId
+            ? { ...n, data: { ...n.data, status: log.status } }
+            : n,
+        ),
       );
-
-      setIsRunning(true);
-
-      await api.post(
-        `/api/execute/${workflowId}`,
-        {},
-        { headers: { Authorization: `Bearer ${token}` } },
-      );
-
-      setIsRunning(true);
-
-      await loadHistory(workflowId, token);
-    } catch (err: any) {
-      console.error(err.response?.data || err.message);
     }
+
+    setIsRunning(false);
   };
 
   if (loading) {
-    return <div className="editor-loading">Loading...</div>;
+    return (
+      <div className="h-screen flex items-center justify-center bg-slate-950 text-white">
+        Loading...
+      </div>
+    );
   }
 
   return (
-    <div
-      style={{
-        display: "flex",
-        height: "100vh",
-        width: "100vw",
-        background: "#0f172a",
-        overflow: "hidden",
-      }}
-    >
+    <div className="flex h-screen w-screen bg-slate-950 overflow-hidden">
       <Sidebar />
 
-      <div
-        style={{
-          flex: 1,
-          display: "flex",
-          flexDirection: "column",
-          height: "100%",
-        }}
-      >
+      <div className="flex flex-col flex-1">
         <EditorHeader
-          workflowId={id!}
           workflowName={workflowName}
           setWorkflowName={setWorkflowName}
           runWorkflow={runWorkflow}
-          setNodes={setNodes}
-          setEdges={setEdges}
+          isRunning={isRunning}
         />
 
-        <div style={{ flex: 1, height: "100%" }}>
+        <div className="flex-1">
           <FlowCanvas
             nodes={nodes}
             edges={edges}
@@ -155,13 +158,17 @@ export default function FlowEditor() {
             setSelectedNode={setSelectedNode}
           />
         </div>
+
         <SimulationBar nodes={nodes} isRunning={isRunning} />
       </div>
 
       <RightPanel
         selectedNode={selectedNode}
         history={history}
-        setSelectedExecution={setSelectedExecution}
+        setSelectedExecution={(exec: any) => {
+          setSelectedExecution(exec);
+          replayExecution(exec);
+        }}
       />
 
       {selectedExecution && (

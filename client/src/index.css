@@ -140,30 +140,40 @@
 /*execution aanimation*/
 
 .node-running {
-  animation: pulse-glow 1.5s infinite ease-in-out;
-  box-shadow: 0 0 12px rgba(56, 189, 248, 0.6);
+  border: 2px solid #facc15 !important;
+  box-shadow: 0 0 12px #facc15;
+  animation: pulse-yellow 1s infinite;
 }
 
-@keyframes pulse-glow {
+@keyframes pulse-yellow {
   0% {
-    box-shadow: 0 0 4px rgba(56, 189, 248, 0.4);
+    box-shadow: 0 0 6px #facc15;
   }
   50% {
-    box-shadow: 0 0 18px rgba(56, 189, 248, 0.9);
+    box-shadow: 0 0 18px #facc15;
   }
   100% {
-    box-shadow: 0 0 4px rgba(56, 189, 248, 0.4);
+    box-shadow: 0 0 6px #facc15;
   }
 }
 
-/*animated edge when active*/
+.node-success {
+  border: 2px solid #22c55e !important;
+  box-shadow: 0 0 14px #22c55e;
+}
+
+.node-error {
+  border: 2px solid #ef4444 !important;
+  box-shadow: 0 0 14px #ef4444;
+}
+
 .edge-running path {
   stroke-dasharray: 6;
   animation: dash-flow 1s linear infinite;
 }
 
-@keyframes dash-flow {
+@keyframes dash {
   to {
-    stroke-dashoffset: -12;
+    stroke-dashoffset: -10;
   }
 }

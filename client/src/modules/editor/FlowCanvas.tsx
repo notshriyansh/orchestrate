@@ -84,7 +84,14 @@ export default function FlowCanvas({
     () =>
       nodes.map((node: any) => ({
         ...node,
-        className: node.data?.status === "running" ? "node-running" : "",
+        className:
+          node.data?.status === "running"
+            ? "node-running"
+            : node.data?.status === "success"
+              ? "node-success"
+              : node.data?.status === "error"
+                ? "node-error"
+                : "",
       })),
     [nodes],
   );
