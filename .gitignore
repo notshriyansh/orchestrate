@@ -1,0 +1,47 @@
+# Node
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Vite
+dist/
+.vite/
+
+# Build
+build/
+
+# Environment
+.env
+.env.local
+.env.*.local
+
+# Logs
+logs
+*.log
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+
+# Firebase
+firebase-service-account.json
+
+# Prisma
+prisma/migrations/
+*.db
+
+# React Flow dev artifacts
+*.tsbuildinfo
+
+# Coverage
+coverage/
+
+# Mac
+.AppleDouble
+.LSOverride

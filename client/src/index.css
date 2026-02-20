@@ -1,0 +1,169 @@
+@import "tailwindcss";
+
+@keyframes dash {
+  to {
+    stroke-dashoffset: -10;
+  }
+}
+
+.editor-root {
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background: #0f172a;
+  color: white;
+}
+
+.editor-header {
+  height: 60px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 20px;
+  border-bottom: 1px solid #1e293b;
+  background: #0b1220;
+}
+
+.workflow-title {
+  background: transparent;
+  border: none;
+  font-size: 18px;
+  color: white;
+  outline: none;
+}
+
+.run-btn {
+  background: #2563eb;
+  border: none;
+  padding: 6px 14px;
+  border-radius: 6px;
+  cursor: pointer;
+  color: white;
+}
+
+.editor-body {
+  flex: 1;
+  display: flex;
+}
+
+.sidebar {
+  width: 220px;
+  padding: 20px;
+  background: #0b1220;
+  border-right: 1px solid #1e293b;
+}
+
+.palette-item {
+  padding: 10px;
+  background: #111827;
+  border-radius: 6px;
+  margin-bottom: 10px;
+  cursor: grab;
+}
+
+.canvas {
+  flex: 1;
+  position: relative;
+}
+
+.right-panel {
+  width: 320px;
+  background: #0b1220;
+  border-left: 1px solid #1e293b;
+  padding: 20px;
+  overflow-y: auto;
+}
+
+.history-item {
+  background: #111827;
+  padding: 12px;
+  border-radius: 8px;
+  margin-bottom: 12px;
+  cursor: pointer;
+}
+
+.history-time {
+  font-size: 12px;
+  opacity: 0.6;
+}
+
+.empty-state {
+  position: absolute;
+  top: 45%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  opacity: 0.4;
+}
+
+.spinner-container {
+  height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.spinner {
+  width: 40px;
+  height: 40px;
+  border: 4px solid #334155;
+  border-top: 4px solid #2563eb;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.skeleton {
+  height: 40px;
+  background: #1e293b;
+  margin-bottom: 16px;
+  border-radius: 8px;
+  animation: pulse 1.2s infinite ease-in-out;
+}
+
+@keyframes pulse {
+  0% {
+    opacity: 0.5;
+  }
+  50% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0.5;
+  }
+}
+
+/*execution aanimation*/
+
+.node-running {
+  animation: pulse-glow 1.5s infinite ease-in-out;
+  box-shadow: 0 0 12px rgba(56, 189, 248, 0.6);
+}
+
+@keyframes pulse-glow {
+  0% {
+    box-shadow: 0 0 4px rgba(56, 189, 248, 0.4);
+  }
+  50% {
+    box-shadow: 0 0 18px rgba(56, 189, 248, 0.9);
+  }
+  100% {
+    box-shadow: 0 0 4px rgba(56, 189, 248, 0.4);
+  }
+}
+
+/*animated edge when active*/
+.edge-running path {
+  stroke-dasharray: 6;
+  animation: dash-flow 1s linear infinite;
+}
+
+@keyframes dash-flow {
+  to {
+    stroke-dashoffset: -12;
+  }
+}
