@@ -167,13 +167,13 @@
   box-shadow: 0 0 14px #ef4444;
 }
 
-.edge-running path {
+.edge-animated {
   stroke-dasharray: 6;
-  animation: dash-flow 1s linear infinite;
+  animation: dash 1s linear infinite;
 }
 
 @keyframes dash {
   to {
-    stroke-dashoffset: -10;
+    stroke-dashoffset: -20;
   }
 }

@@ -2,41 +2,69 @@ import { Router } from "express";
 import { prisma } from "../../lib/prisma.js";
 import { authenticate, AuthRequest } from "../../middleware/auth.middleware.js";
 import { executeWorkflow } from "./execution.service.js";
-import { Prisma } from "@prisma/client";
 
 const router = Router();
 
-router.post("/", authenticate, async (req: AuthRequest, res) => {
+router.post("/:workflowId", authenticate, async (req: AuthRequest, res) => {
   try {
     if (!req.user) {
       return res.status(401).json({ message: "Unauthorized" });
     }
 
-    const { name, nodes, edges } = req.body;
+    const workflowIdParam = req.params.workflowId;
+    const workflowId = Array.isArray(workflowIdParam)
+      ? workflowIdParam[0]
+      : workflowIdParam;
 
-    const workflow = await prisma.workflow.create({
+    if (!workflowId) {
+      return res.status(400).json({ message: "Invalid workflow id" });
+    }
+
+    const workflow = await prisma.workflow.findUnique({
+      where: { id: workflowId },
+    });
+
+    if (!workflow) {
+      return res.status(404).json({ message: "Workflow not found" });
+    }
+
+    const startedAt = new Date();
+
+    const logs = await executeWorkflow(
+      workflow.nodes as any[],
+      workflow.edges as any[],
+    );
+
+    const execution = await prisma.execution.create({
       data: {
-        name: name || "Untitled Workflow",
-        userId: req.user.id,
-        nodes: (nodes ?? []) as Prisma.InputJsonValue,
-        edges: (edges ?? []) as Prisma.InputJsonValue,
+        workflowId: workflowId,
+        logs,
+        status: logs.some((l: any) => l.status === "error")
+          ? "failed"
+          : "success",
+        startedAt,
       },
     });
 
-    res.json(workflow);
-  } catch (err) {
-    console.error("Create workflow error:", err);
-    res.status(500).json({ error: "Failed to create workflow" });
+    res.json(execution);
+  } catch (error) {
+    console.error("Execution failed:", error);
+    res.status(500).json({ error: "Execution failed" });
   }
 });
 
 router.get("/history/:workflowId", authenticate, async (req, res) => {
-  const workflowId = Array.isArray(req.params.workflowId)
-    ? req.params.workflowId[0]
-    : req.params.workflowId;
+  const workflowIdParam = req.params.workflowId;
+  const workflowId = Array.isArray(workflowIdParam)
+    ? workflowIdParam[0]
+    : workflowIdParam;
+
+  if (!workflowId) {
+    return res.status(400).json({ message: "Invalid workflow id" });
+  }
 
   const executions = await prisma.execution.findMany({
-    where: { workflowId },
+    where: { workflowId: workflowId },
     orderBy: { startedAt: "desc" },
   });
 

@@ -1,38 +1,21 @@
-interface Props {
-  nodes: any[];
-  isRunning: boolean;
-}
-
-export default function SimulationBar({ nodes, isRunning }: Props) {
-  const runningNode = nodes.find((n) => n.data?.status === "running");
-
+export default function SimulationBar({ progress, isRunning }: any) {
   return (
-    <div
-      style={{
-        height: 60,
-        borderTop: "1px solid #1f2937",
-        background: "#0b1220",
-        display: "flex",
-        alignItems: "center",
-        padding: "0 20px",
-        justifyContent: "space-between",
-      }}
-    >
-      <div>
-        {isRunning ? (
-          runningNode ? (
-            <span style={{ color: "#38bdf8" }}>
-              Executing: {runningNode.data?.label}
-            </span>
-          ) : (
-            <span style={{ opacity: 0.6 }}>Starting execution...</span>
-          )
-        ) : (
-          <span style={{ opacity: 0.6 }}>Idle</span>
-        )}
+    <div className="h-14 border-t border-white/10 bg-slate-900 px-6 flex flex-col justify-center">
+      <div className="flex justify-between text-xs text-slate-400 mb-2">
+        <span>{isRunning ? "Executing workflow..." : "Idle"}</span>
+        <span>{Math.round(progress)}%</span>
       </div>
 
-      <div style={{ fontSize: 13, opacity: 0.6 }}>{nodes.length} nodes</div>
+      <div className="w-full bg-slate-800 h-2 rounded overflow-hidden relative">
+        <div
+          className={`h-full transition-all duration-300 ${
+            isRunning
+              ? "bg-linear-to-r from-blue-500 to-indigo-500 animate-pulse"
+              : "bg-green-500"
+          }`}
+          style={{ width: `${progress}%` }}
+        />
+      </div>
     </div>
   );
 }

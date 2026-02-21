@@ -1,11 +1,7 @@
 import { useState } from "react";
 import NodeInspector from "./NodeInspector";
 
-export default function RightPanel({
-  selectedNode,
-  history,
-  setSelectedExecution,
-}: any) {
+export default function RightPanel({ selectedNode, history, onReplay }: any) {
   const [tab, setTab] = useState<"inspector" | "history">("history");
 
   return (
@@ -42,7 +38,7 @@ export default function RightPanel({
           history.map((exec: any) => (
             <div
               key={exec.id}
-              onClick={() => setSelectedExecution(exec)}
+              onClick={() => onReplay(exec)}
               className="p-4 mb-3 rounded-lg bg-slate-800 hover:bg-slate-700 transition cursor-pointer border border-white/5"
             >
               <div className="font-medium">{exec.status.toUpperCase()}</div>

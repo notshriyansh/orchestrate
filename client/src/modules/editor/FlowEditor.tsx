@@ -27,6 +27,8 @@ export default function FlowEditor() {
   const [selectedExecution, setSelectedExecution] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [isRunning, setIsRunning] = useState(false);
+  const [progress, setProgress] = useState(0);
+  const [replaySpeed, setReplaySpeed] = useState(600);
 
   useExecutionSocket(setNodes);
   useWorkflowAutoSave(workflowId, nodes, edges, workflowName);
@@ -106,6 +108,7 @@ export default function FlowEditor() {
     if (!execution?.logs?.length) return;
 
     setIsRunning(true);
+    setProgress(0);
 
     setNodes((prev) =>
       prev.map((n) => ({
@@ -114,8 +117,19 @@ export default function FlowEditor() {
       })),
     );
 
-    for (const log of execution.logs) {
-      await new Promise((res) => setTimeout(res, 600));
+    setEdges((prev) =>
+      prev.map((e) => ({
+        ...e,
+        data: { ...e.data, active: false },
+      })),
+    );
+
+    const total = execution.logs.length;
+
+    for (let i = 0; i < total; i++) {
+      const log = execution.logs[i];
+
+      await new Promise((res) => setTimeout(res, replaySpeed));
 
       setNodes((prev) =>
         prev.map((n) =>
@@ -124,6 +138,16 @@ export default function FlowEditor() {
             : n,
         ),
       );
+
+      setEdges((prev) =>
+        prev.map((e) =>
+          e.source === log.nodeId
+            ? { ...e, data: { ...e.data, active: true } }
+            : { ...e, data: { ...e.data, active: false } },
+        ),
+      );
+
+      setProgress(((i + 1) / total) * 100);
     }
 
     setIsRunning(false);
@@ -147,6 +171,9 @@ export default function FlowEditor() {
           setWorkflowName={setWorkflowName}
           runWorkflow={runWorkflow}
           isRunning={isRunning}
+          replay={() => replayExecution(history[0])}
+          replaySpeed={replaySpeed}
+          setReplaySpeed={setReplaySpeed}
         />
 
         <div className="flex-1">
@@ -159,7 +186,7 @@ export default function FlowEditor() {
           />
         </div>
 
-        <SimulationBar nodes={nodes} isRunning={isRunning} />
+        <SimulationBar progress={progress} isRunning={isRunning} />
       </div>
 
       <RightPanel

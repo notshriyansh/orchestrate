@@ -3,7 +3,6 @@ import ReactFlow, {
   addEdge,
   Background,
   Controls,
-  MiniMap,
   applyNodeChanges,
   applyEdgeChanges,
   useReactFlow,
@@ -130,7 +129,6 @@ export default function FlowCanvas({
         onDragOver={onDragOver}
         fitView
       >
-        <MiniMap />
         <Background gap={28} color="#1f2937" />
         <Controls />
       </ReactFlow>

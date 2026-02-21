@@ -1,20 +1,20 @@
 import { BaseEdge, EdgeLabelRenderer, getBezierPath } from "reactflow";
+import type { EdgeProps } from "reactflow";
 import { Trash2 } from "lucide-react";
 
-export default function CustomEdge(props: any) {
-  const {
-    id,
-    sourceX,
-    sourceY,
-    targetX,
-    targetY,
-    sourcePosition,
-    targetPosition,
-    markerEnd,
-    data,
-  } = props;
-
-  const [edgePath, labelX, labelY] = getBezierPath({
+export default function CustomEdge({
+  id,
+  sourceX,
+  sourceY,
+  targetX,
+  targetY,
+  sourcePosition,
+  targetPosition,
+  markerEnd,
+  style,
+  data,
+}: EdgeProps) {
+  const [edgePath] = getBezierPath({
     sourceX,
     sourceY,
     targetX,
@@ -23,30 +23,35 @@ export default function CustomEdge(props: any) {
     targetPosition,
   });
 
+  const isActive = data?.active;
+
   return (
     <>
       <BaseEdge
         path={edgePath}
         markerEnd={markerEnd}
         style={{
-          strokeWidth: 3,
-          strokeDasharray: data?.active ? "5 5" : undefined,
-          animation: data?.active ? "dash 1s linear infinite" : undefined,
+          stroke: isActive ? "#3b82f6" : "#64748b",
+          strokeWidth: isActive ? 3 : 2,
+          strokeDasharray: isActive ? "6" : "0",
+          animation: isActive ? "dash 1s linear infinite" : "none",
+          ...style,
         }}
       />
 
       <EdgeLabelRenderer>
         <div
-          className="absolute pointer-events-auto"
           style={{
-            transform: `translate(-50%, -50%) translate(${labelX}px,${labelY}px)`,
+            position: "absolute",
+            transform: `translate(-50%, -50%)`,
+            pointerEvents: "all",
           }}
         >
           <button
             onClick={() => data?.onDelete?.(id)}
-            className="w-6 h-6 rounded-full bg-red-500 hover:bg-red-400 transition flex items-center justify-center shadow-md"
+            className="bg-red-500 hover:bg-red-600 w-6 h-6 rounded-full flex items-center justify-center transition"
           >
-            <Trash2 size={14} color="white" />
+            <Trash2 size={12} color="white" />
           </button>
         </div>
       </EdgeLabelRenderer>
