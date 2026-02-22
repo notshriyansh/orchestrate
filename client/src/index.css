@@ -180,22 +180,6 @@
   box-shadow: 0 0 12px currentColor;
 }
 
-.react-flow__background {
-  background-color: #0f172a;
-  background-image:
-    linear-gradient(#1e293b 1px, transparent 1px),
-    linear-gradient(90deg, #1e293b 1px, transparent 1px);
-  background-size: 40px 40px;
-}
-
-.react-flow-wrapper {
-  background-color: #0b1220;
-  background-image:
-    linear-gradient(rgba(148, 163, 184, 0.08) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(148, 163, 184, 0.08) 1px, transparent 1px);
-  background-size: 60px 60px;
-}
-
 .react-flow-wrapper::after {
   content: "";
   position: absolute;

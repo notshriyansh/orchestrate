@@ -94,6 +94,9 @@ export function importPostmanCollection(collection: PostmanCollection) {
         url,
         headers,
         body,
+        timeout: 10000,
+        retries: 0,
+        continueOnFailure: true,
         status: "idle",
       },
     });
@@ -103,9 +106,7 @@ export function importPostmanCollection(collection: PostmanCollection) {
 
   function extractItems(items: any[], parentId?: string) {
     items.forEach((item) => {
-      if (item.item && Array.isArray(item.item)) {
-        extractItems(item.item, parentId);
-      } else if (item.request) {
+      if (item.request) {
         const nodeId = createNodeFromRequest(item.request, item.name);
 
         if (parentId) {
@@ -114,12 +115,15 @@ export function importPostmanCollection(collection: PostmanCollection) {
             source: parentId,
             target: nodeId,
             type: "custom",
+            data: { active: false },
           });
         }
 
-        if (item.item) {
-          extractItems(item.item, nodeId);
-        }
+        parentId = nodeId;
+      }
+
+      if (item.item && Array.isArray(item.item)) {
+        extractItems(item.item, parentId);
       }
     });
   }
@@ -150,6 +154,8 @@ function layoutNodes(nodes: FlowNode[], edges: FlowEdge[]) {
   const levelMap = new Map<string, number>();
 
   function assignLevels(nodeId: string, level: number) {
+    if (levelMap.has(nodeId)) return;
+
     levelMap.set(nodeId, level);
     childrenMap.get(nodeId)?.forEach((child) => assignLevels(child, level + 1));
   }
@@ -164,8 +170,8 @@ function layoutNodes(nodes: FlowNode[], edges: FlowEdge[]) {
     grouped[level].push(node);
   });
 
-  const horizontalSpacing = 320;
-  const verticalSpacing = 160;
+  const horizontalSpacing = 420;
+  const verticalSpacing = 200;
 
   Object.entries(grouped).forEach(([levelStr, levelNodes]) => {
     const level = Number(levelStr);

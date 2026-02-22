@@ -208,10 +208,10 @@ export default function FlowEditor() {
       <RightPanel
         selectedNode={selectedNode}
         history={history}
-        setSelectedExecution={(exec: any) => {
+        onReplay={(exec: any) => {
           setSelectedExecution(exec);
-          replayExecution(exec);
         }}
+        setNodes={setNodes}
       />
 
       {selectedExecution && (

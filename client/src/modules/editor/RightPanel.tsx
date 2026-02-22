@@ -1,53 +1,83 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { ChevronRight, ChevronLeft } from "lucide-react";
 import NodeInspector from "./NodeInspector";
 
-export default function RightPanel({ selectedNode, history, onReplay }: any) {
-  const [tab, setTab] = useState<"inspector" | "history">("history");
+export default function RightPanel({
+  selectedNode,
+  history,
+  onReplay,
+  setNodes,
+}: any) {
+  const [tab, setTab] = useState<"inspector" | "history">("inspector");
+  const [collapsed, setCollapsed] = useState(false);
+
+  useEffect(() => {
+    if (selectedNode) setTab("inspector");
+  }, [selectedNode]);
 
   return (
-    <div className="w-80 border-l border-white/10 bg-slate-900/70 backdrop-blur-xl flex flex-col">
-      <div className="flex border-b border-white/10">
+    <div
+      className={`transition-all duration-300 border-l border-white/10 bg-slate-950 flex flex-col ${
+        collapsed ? "w-12" : "w-105"
+      }`}
+    >
+      <div className="flex justify-end p-2">
         <button
-          onClick={() => setTab("history")}
-          className={`flex-1 py-3 text-sm ${
-            tab === "history"
-              ? "text-blue-400 border-b-2 border-blue-400"
-              : "text-muted-foreground"
-          }`}
+          onClick={() => setCollapsed(!collapsed)}
+          className="text-slate-400 hover:text-white"
         >
-          History
-        </button>
-        <button
-          onClick={() => setTab("inspector")}
-          className={`flex-1 py-3 text-sm ${
-            tab === "inspector"
-              ? "text-blue-400 border-b-2 border-blue-400"
-              : "text-muted-foreground"
-          }`}
-        >
-          Inspector
+          {collapsed ? <ChevronLeft size={18} /> : <ChevronRight size={18} />}
         </button>
       </div>
 
-      <div className="flex-1 overflow-y-auto p-5">
-        {tab === "inspector" && selectedNode && (
-          <NodeInspector node={selectedNode} />
-        )}
-
-        {tab === "history" &&
-          history.map((exec: any) => (
-            <div
-              key={exec.id}
-              onClick={() => onReplay(exec)}
-              className="p-4 mb-3 rounded-lg bg-slate-800 hover:bg-slate-700 transition cursor-pointer border border-white/5"
+      {!collapsed && (
+        <>
+          <div className="flex border-b border-white/10">
+            <button
+              onClick={() => setTab("inspector")}
+              className={`flex-1 py-3 text-sm ${
+                tab === "inspector"
+                  ? "text-blue-400 border-b-2 border-blue-400"
+                  : "text-slate-400"
+              }`}
             >
-              <div className="font-medium">{exec.status.toUpperCase()}</div>
-              <div className="text-xs opacity-60">
-                {new Date(exec.startedAt).toLocaleTimeString()}
-              </div>
-            </div>
-          ))}
-      </div>
+              Inspector
+            </button>
+            <button
+              onClick={() => setTab("history")}
+              className={`flex-1 py-3 text-sm ${
+                tab === "history"
+                  ? "text-blue-400 border-b-2 border-blue-400"
+                  : "text-slate-400"
+              }`}
+            >
+              History
+            </button>
+          </div>
+
+          <div className="flex-1 overflow-y-auto p-6">
+            {tab === "inspector" && selectedNode && (
+              <NodeInspector node={selectedNode} setNodes={setNodes} />
+            )}
+
+            {tab === "history" &&
+              history.map((exec: any) => (
+                <div
+                  key={exec.id}
+                  onClick={() => onReplay(exec)}
+                  className="p-4 mb-4 bg-slate-800 rounded-lg cursor-pointer hover:bg-slate-700 transition"
+                >
+                  <div className="text-white font-medium">
+                    {exec.status.toUpperCase()}
+                  </div>
+                  <div className="text-xs text-slate-400">
+                    {new Date(exec.startedAt).toLocaleTimeString()}
+                  </div>
+                </div>
+              ))}
+          </div>
+        </>
+      )}
     </div>
   );
 }

@@ -7,6 +7,8 @@ import ReactFlow, {
   useReactFlow,
   type Node,
   type Edge,
+  Background,
+  BackgroundVariant,
 } from "reactflow";
 import "reactflow/dist/style.css";
 
@@ -122,7 +124,7 @@ export default function FlowCanvas({
   );
 
   return (
-    <div className="flex-1 h-full w-full relative react-flow-wrapper">
+    <div className="flex-1 h-full w-full relative">
       <ReactFlow
         nodes={styledNodes}
         edges={edges}
@@ -153,6 +155,7 @@ export default function FlowCanvas({
         }
         deleteKeyCode={["Backspace", "Delete"]}
         onNodeClick={(_, node) => setSelectedNode(node)}
+        onPaneClick={() => setSelectedNode(null)}
         onDrop={onDrop}
         onDragOver={onDragOver}
         panOnDrag={!drawMode}
@@ -161,6 +164,13 @@ export default function FlowCanvas({
         elementsSelectable={!drawMode}
         fitView
       >
+        <Background
+          variant={BackgroundVariant.Lines}
+          gap={40}
+          size={1}
+          color="#1e293b"
+        />
+
         <Controls />
       </ReactFlow>
     </div>
