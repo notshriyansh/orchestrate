@@ -1,15 +1,13 @@
-import Navbar from "../../components/Navbar";
 import DashboardHeader from "./DashBoardHeader";
 import WorkflowGrid from "./WorkFlowGrid";
+import MetricsBar from "./MetricsBar";
 
 export default function DashboardPage() {
   return (
-    <div className="min-h-screen bg-background">
-      <Navbar />
-      <main className="max-w-7xl mx-auto pt-28 px-6 pb-20">
-        <DashboardHeader title="Workflows" />
-        <WorkflowGrid />
-      </main>
+    <div className="min-h-screen bg-slate-950 px-10 py-10 text-white">
+      <DashboardHeader title="Workflows" />
+      <MetricsBar />
+      <WorkflowGrid />
     </div>
   );
 }

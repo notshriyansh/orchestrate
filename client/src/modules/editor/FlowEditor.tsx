@@ -14,6 +14,9 @@ import SimulationBar from "./SimulationBar";
 import useExecutionSocket from "../workflow/useExecutionSocket";
 import useWorkflowAutoSave from "../workflow/useWorkflowAutoSave";
 
+import DrawingLayer from "../../components/DrawingLayer";
+import DrawToolbar from "../../components/DrawToolbar";
+
 export default function FlowEditor() {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -29,6 +32,10 @@ export default function FlowEditor() {
   const [isRunning, setIsRunning] = useState(false);
   const [progress, setProgress] = useState(0);
   const [replaySpeed, setReplaySpeed] = useState(600);
+
+  const [drawMode, setDrawMode] = useState<null | "rect" | "circle" | "arrow">(
+    null,
+  );
 
   useExecutionSocket(setNodes);
   useWorkflowAutoSave(workflowId, nodes, edges, workflowName);
@@ -46,6 +53,7 @@ export default function FlowEditor() {
             {},
             { headers: { Authorization: `Bearer ${token}` } },
           );
+
           navigate(`/editor/${res.data.id}`, { replace: true });
           return;
         }
@@ -165,8 +173,9 @@ export default function FlowEditor() {
     <div className="flex h-screen w-screen bg-slate-950 overflow-hidden">
       <Sidebar />
 
-      <div className="flex flex-col flex-1">
+      <div className="flex flex-col flex-1 relative">
         <EditorHeader
+          workflowId={workflowId}
           workflowName={workflowName}
           setWorkflowName={setWorkflowName}
           runWorkflow={runWorkflow}
@@ -174,16 +183,23 @@ export default function FlowEditor() {
           replay={() => replayExecution(history[0])}
           replaySpeed={replaySpeed}
           setReplaySpeed={setReplaySpeed}
+          setNodes={setNodes}
+          setEdges={setEdges}
         />
 
-        <div className="flex-1">
+        <div className="flex-1 relative">
+          <DrawToolbar drawMode={drawMode} setDrawMode={setDrawMode} />
+
           <FlowCanvas
             nodes={nodes}
             edges={edges}
             setNodes={setNodes}
             setEdges={setEdges}
             setSelectedNode={setSelectedNode}
+            drawMode={drawMode}
           />
+
+          <DrawingLayer drawMode={drawMode} setDrawMode={setDrawMode} />
         </div>
 
         <SimulationBar progress={progress} isRunning={isRunning} />

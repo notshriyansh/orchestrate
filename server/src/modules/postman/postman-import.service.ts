@@ -18,6 +18,9 @@ interface FlowEdge {
   target: string;
   type?: string;
   style?: any;
+  data?: {
+    active?: boolean;
+  };
 }
 
 export function importPostmanCollection(collection: PostmanCollection) {
@@ -110,15 +113,13 @@ export function importPostmanCollection(collection: PostmanCollection) {
             id: uuid(),
             source: parentId,
             target: nodeId,
-            type: "smoothstep",
-            style: {
-              stroke: "#64748b",
-              strokeWidth: 3,
-            },
+            type: "custom",
           });
         }
 
-        parentId = nodeId;
+        if (item.item) {
+          extractItems(item.item, nodeId);
+        }
       }
     });
   }
@@ -131,66 +132,51 @@ export function importPostmanCollection(collection: PostmanCollection) {
 }
 
 function layoutNodes(nodes: FlowNode[], edges: FlowEdge[]) {
-  const adjacency = new Map<string, string[]>();
-  const inDegree = new Map<string, number>();
+  const childrenMap = new Map<string, string[]>();
+  const parentCount = new Map<string, number>();
 
-  nodes.forEach((node) => {
-    adjacency.set(node.id, []);
-    inDegree.set(node.id, 0);
+  nodes.forEach((n) => {
+    childrenMap.set(n.id, []);
+    parentCount.set(n.id, 0);
   });
 
-  edges.forEach((edge) => {
-    adjacency.get(edge.source)?.push(edge.target);
-    inDegree.set(edge.target, (inDegree.get(edge.target) || 0) + 1);
+  edges.forEach((e) => {
+    childrenMap.get(e.source)?.push(e.target);
+    parentCount.set(e.target, (parentCount.get(e.target) || 0) + 1);
   });
 
-  const levels: Record<string, number> = {};
-  const queue: string[] = [];
+  const roots = nodes.filter((n) => parentCount.get(n.id) === 0);
 
-  nodes.forEach((node) => {
-    if (inDegree.get(node.id) === 0) {
-      levels[node.id] = 0;
-      queue.push(node.id);
-    }
-  });
+  const levelMap = new Map<string, number>();
 
-  while (queue.length) {
-    const current = queue.shift()!;
-    const children = adjacency.get(current) || [];
-
-    children.forEach((child) => {
-      const newLevel = (levels[current] ?? 0) + 1;
-      levels[child] = Math.max(levels[child] ?? 0, newLevel);
-
-      inDegree.set(child, (inDegree.get(child) || 1) - 1);
-
-      if (inDegree.get(child) === 0) {
-        queue.push(child);
-      }
-    });
+  function assignLevels(nodeId: string, level: number) {
+    levelMap.set(nodeId, level);
+    childrenMap.get(nodeId)?.forEach((child) => assignLevels(child, level + 1));
   }
+
+  roots.forEach((root) => assignLevels(root.id, 0));
 
   const grouped: Record<number, FlowNode[]> = {};
 
-  Object.entries(levels).forEach(([id, level]) => {
+  nodes.forEach((node) => {
+    const level = levelMap.get(node.id) ?? 0;
     if (!grouped[level]) grouped[level] = [];
-    const node = nodes.find((n) => n.id === id);
-    if (node) grouped[level].push(node);
+    grouped[level].push(node);
   });
 
-  const horizontalSpacing = 380;
-  const verticalSpacing = 180;
+  const horizontalSpacing = 320;
+  const verticalSpacing = 160;
 
   Object.entries(grouped).forEach(([levelStr, levelNodes]) => {
     const level = Number(levelStr);
 
-    const totalHeight = levelNodes.length * verticalSpacing;
-    const offsetY = -totalHeight / 2;
+    const totalHeight = (levelNodes.length - 1) * verticalSpacing;
+    const startY = -totalHeight / 2;
 
     levelNodes.forEach((node, index) => {
       node.position = {
         x: level * horizontalSpacing,
-        y: offsetY + index * verticalSpacing,
+        y: startY + index * verticalSpacing,
       };
     });
   });

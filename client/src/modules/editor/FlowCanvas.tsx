@@ -1,11 +1,12 @@
 import React, { useCallback, useMemo } from "react";
 import ReactFlow, {
   addEdge,
-  Background,
   Controls,
   applyNodeChanges,
   applyEdgeChanges,
   useReactFlow,
+  type Node,
+  type Edge,
 } from "reactflow";
 import "reactflow/dist/style.css";
 
@@ -18,13 +19,23 @@ import DatabaseNode from "./nodes/DatabaseNode";
 import ParallelNode from "./nodes/ParallelNode";
 import CustomEdge from "./edges/CustomEdges";
 
+interface Props {
+  nodes: Node[];
+  edges: Edge[];
+  setNodes: React.Dispatch<React.SetStateAction<Node[]>>;
+  setEdges: React.Dispatch<React.SetStateAction<Edge[]>>;
+  setSelectedNode: (node: Node | null) => void;
+  drawMode: null | "rect" | "circle" | "arrow";
+}
+
 export default function FlowCanvas({
   nodes,
   edges,
   setNodes,
   setEdges,
   setSelectedNode,
-}: any) {
+  drawMode,
+}: Props) {
   const { project } = useReactFlow();
 
   const nodeTypes = useMemo(
@@ -64,7 +75,7 @@ export default function FlowCanvas({
         y: event.clientY,
       });
 
-      const newNode = {
+      const newNode: Node = {
         id: `${Date.now()}`,
         type,
         position,
@@ -74,14 +85,14 @@ export default function FlowCanvas({
         },
       };
 
-      setNodes((nds: any[]) => nds.concat(newNode));
+      setNodes((nds) => [...nds, newNode]);
     },
     [project, setNodes],
   );
 
   const styledNodes = useMemo(
     () =>
-      nodes.map((node: any) => ({
+      nodes.map((node) => ({
         ...node,
         className:
           node.data?.status === "running"
@@ -95,28 +106,45 @@ export default function FlowCanvas({
     [nodes],
   );
 
+  const handleNodesDelete = useCallback(
+    (deleted: Node[]) => {
+      const deletedIds = new Set(deleted.map((n) => n.id));
+
+      setEdges((eds) =>
+        eds.filter(
+          (e) => !deletedIds.has(e.source) && !deletedIds.has(e.target),
+        ),
+      );
+
+      setSelectedNode(null);
+    },
+    [setEdges, setSelectedNode],
+  );
+
   return (
-    <div className="flex-1 h-full w-full">
+    <div className="flex-1 h-full w-full relative react-flow-wrapper">
       <ReactFlow
         nodes={styledNodes}
         edges={edges}
         nodeTypes={nodeTypes}
         edgeTypes={edgeTypes}
         onNodesChange={(changes) =>
-          setNodes((nds: any) => applyNodeChanges(changes, nds))
+          setNodes((nds) => applyNodeChanges(changes, nds))
         }
         onEdgesChange={(changes) =>
-          setEdges((eds: any) => applyEdgeChanges(changes, eds))
+          setEdges((eds) => applyEdgeChanges(changes, eds))
         }
+        onNodesDelete={handleNodesDelete}
         onConnect={(params) =>
-          setEdges((eds: any[]) =>
+          setEdges((eds) =>
             addEdge(
               {
                 ...params,
                 type: "custom",
                 data: {
+                  active: false,
                   onDelete: (id: string) =>
-                    setEdges((prev: any[]) => prev.filter((e) => e.id !== id)),
+                    setEdges((prev) => prev.filter((edge) => edge.id !== id)),
                 },
               },
               eds,
@@ -127,9 +155,12 @@ export default function FlowCanvas({
         onNodeClick={(_, node) => setSelectedNode(node)}
         onDrop={onDrop}
         onDragOver={onDragOver}
+        panOnDrag={!drawMode}
+        zoomOnScroll={!drawMode}
+        nodesDraggable={!drawMode}
+        elementsSelectable={!drawMode}
         fitView
       >
-        <Background gap={28} color="#1f2937" />
         <Controls />
       </ReactFlow>
     </div>
