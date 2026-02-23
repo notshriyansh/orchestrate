@@ -9,6 +9,7 @@ import ReactFlow, {
   type Edge,
   Background,
   BackgroundVariant,
+  MarkerType,
 } from "reactflow";
 import "reactflow/dist/style.css";
 
@@ -19,6 +20,7 @@ import WebhookNode from "./nodes/WebhookNode";
 import TransformNode from "./nodes/TransformNode";
 import DatabaseNode from "./nodes/DatabaseNode";
 import ParallelNode from "./nodes/ParallelNode";
+import InfraNode from "./nodes/InfraNode";
 import CustomEdge from "./edges/CustomEdges";
 
 interface Props {
@@ -49,6 +51,17 @@ export default function FlowCanvas({
       transform: TransformNode,
       database: DatabaseNode,
       parallel: ParallelNode,
+
+      loadbalancer: InfraNode,
+      apigateway: InfraNode,
+      cache: InfraNode,
+      redis: InfraNode,
+      postgres: InfraNode,
+      graphdb: InfraNode,
+      vectordb: InfraNode,
+      scheduler: InfraNode,
+      appserver: InfraNode,
+      reverseproxy: InfraNode,
     }),
     [],
   );
@@ -82,8 +95,9 @@ export default function FlowCanvas({
         type,
         position,
         data: {
-          label: `${type.toUpperCase()} Node`,
+          label: type.toUpperCase(),
           status: "idle",
+          health: "healthy",
         },
       };
 
@@ -143,8 +157,9 @@ export default function FlowCanvas({
               {
                 ...params,
                 type: "custom",
+                markerEnd: { type: MarkerType.ArrowClosed },
                 data: {
-                  active: false,
+                  active: true,
                   onDelete: (id: string) =>
                     setEdges((prev) => prev.filter((edge) => edge.id !== id)),
                 },
@@ -163,6 +178,7 @@ export default function FlowCanvas({
         nodesDraggable={!drawMode}
         elementsSelectable={!drawMode}
         fitView
+        proOptions={{ hideAttribution: true }}
       >
         <Background
           variant={BackgroundVariant.Lines}

@@ -5,8 +5,19 @@ import {
   Database,
   Timer,
   GitBranch,
-  ChevronLeft,
+  Layers,
+  Server,
+  HardDrive,
+  Cpu,
+  Cloud,
+  Shield,
   Search,
+  ChevronLeft,
+  Network,
+  Box,
+  Activity,
+  Lock,
+  Radio,
 } from "lucide-react";
 import { useCallback, useMemo, useState } from "react";
 
@@ -15,7 +26,13 @@ interface PaletteItem {
   label: string;
   icon: any;
   color: string;
-  category: "API" | "Logic" | "Storage";
+  category:
+    | "API"
+    | "Logic"
+    | "Storage"
+    | "Infrastructure"
+    | "Security"
+    | "Compute";
 }
 
 const ITEMS: PaletteItem[] = [
@@ -31,6 +48,13 @@ const ITEMS: PaletteItem[] = [
     label: "Webhook",
     icon: Webhook,
     color: "#22c55e",
+    category: "API",
+  },
+  {
+    type: "apigateway",
+    label: "API Gateway",
+    icon: Network,
+    color: "#2563eb",
     category: "API",
   },
 
@@ -55,6 +79,13 @@ const ITEMS: PaletteItem[] = [
     color: "#facc15",
     category: "Logic",
   },
+  {
+    type: "scheduler",
+    label: "Scheduler",
+    icon: Timer,
+    color: "#eab308",
+    category: "Logic",
+  },
 
   {
     type: "database",
@@ -62,6 +93,114 @@ const ITEMS: PaletteItem[] = [
     icon: Database,
     color: "#14b8a6",
     category: "Storage",
+  },
+  {
+    type: "cache",
+    label: "Cache",
+    icon: HardDrive,
+    color: "#ef4444",
+    category: "Storage",
+  },
+  {
+    type: "kvstore",
+    label: "KV Store",
+    icon: Layers,
+    color: "#22c55e",
+    category: "Storage",
+  },
+  {
+    type: "graphdb",
+    label: "Graph DB",
+    icon: Activity,
+    color: "#06b6d4",
+    category: "Storage",
+  },
+  {
+    type: "vectordb",
+    label: "Vector DB",
+    icon: Layers,
+    color: "#8b5cf6",
+    category: "Storage",
+  },
+  {
+    type: "objectstore",
+    label: "Object Store",
+    icon: Box,
+    color: "#f97316",
+    category: "Storage",
+  },
+
+  {
+    type: "loadbalancer",
+    label: "Load Balancer",
+    icon: Cloud,
+    color: "#0ea5e9",
+    category: "Infrastructure",
+  },
+  {
+    type: "reverseproxy",
+    label: "Reverse Proxy",
+    icon: Radio,
+    color: "#0284c7",
+    category: "Infrastructure",
+  },
+  {
+    type: "cdn",
+    label: "CDN",
+    icon: Globe,
+    color: "#06b6d4",
+    category: "Infrastructure",
+  },
+  {
+    type: "queue",
+    label: "Queue",
+    icon: GitBranch,
+    color: "#9333ea",
+    category: "Infrastructure",
+  },
+  {
+    type: "eventbus",
+    label: "Event Bus",
+    icon: Activity,
+    color: "#a855f7",
+    category: "Infrastructure",
+  },
+
+  {
+    type: "appserver",
+    label: "App Server",
+    icon: Server,
+    color: "#22c55e",
+    category: "Compute",
+  },
+  {
+    type: "worker",
+    label: "Worker",
+    icon: Cpu,
+    color: "#16a34a",
+    category: "Compute",
+  },
+  {
+    type: "container",
+    label: "Container",
+    icon: Box,
+    color: "#10b981",
+    category: "Compute",
+  },
+
+  {
+    type: "auth",
+    label: "Auth Service",
+    icon: Shield,
+    color: "#ef4444",
+    category: "Security",
+  },
+  {
+    type: "firewall",
+    label: "Firewall",
+    icon: Lock,
+    color: "#dc2626",
+    category: "Security",
   },
 ];
 
@@ -74,15 +213,15 @@ export default function Sidebar() {
     event.dataTransfer.effectAllowed = "move";
 
     const ghost = document.createElement("div");
-    ghost.style.padding = "8px 12px";
+    ghost.style.padding = "8px 14px";
     ghost.style.background = "#0f172a";
-    ghost.style.color = "white";
     ghost.style.border = "1px solid #334155";
-    ghost.style.borderRadius = "6px";
+    ghost.style.borderRadius = "8px";
+    ghost.style.color = "white";
     ghost.innerText = type.toUpperCase();
     document.body.appendChild(ghost);
-    event.dataTransfer.setDragImage(ghost, 50, 20);
 
+    event.dataTransfer.setDragImage(ghost, 50, 20);
     setTimeout(() => document.body.removeChild(ghost), 0);
   }, []);
 
@@ -93,23 +232,30 @@ export default function Sidebar() {
   }, [search]);
 
   const grouped = useMemo(() => {
-    return {
-      API: filtered.filter((i) => i.category === "API"),
-      Logic: filtered.filter((i) => i.category === "Logic"),
-      Storage: filtered.filter((i) => i.category === "Storage"),
-    };
+    const categories = [
+      "API",
+      "Logic",
+      "Storage",
+      "Infrastructure",
+      "Compute",
+      "Security",
+    ];
+    return categories.map((cat) => ({
+      category: cat,
+      items: filtered.filter((i) => i.category === cat),
+    }));
   }, [filtered]);
 
   return (
     <div
       className={`h-full bg-slate-950 border-r border-white/5 transition-all duration-300 ${
-        collapsed ? "w-16" : "w-72"
+        collapsed ? "w-20" : "w-80"
       }`}
     >
       <div className="flex items-center justify-between px-4 py-4 border-b border-white/5">
         {!collapsed && (
-          <span className="text-xs tracking-widest text-white/40">
-            COMPONENTS
+          <span className="text-sm font-semibold tracking-wide text-white/80">
+            Components
           </span>
         )}
 
@@ -126,10 +272,10 @@ export default function Sidebar() {
 
       {!collapsed && (
         <div className="px-4 py-3 border-b border-white/5">
-          <div className="flex items-center gap-2 bg-slate-900 px-3 py-2 rounded-lg border border-white/5">
+          <div className="flex items-center gap-2 bg-slate-900 px-3 py-2 rounded-xl border border-white/5">
             <Search size={14} className="text-white/40" />
             <input
-              placeholder="Search..."
+              placeholder="Search components"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               className="bg-transparent outline-none text-sm text-white w-full"
@@ -138,17 +284,21 @@ export default function Sidebar() {
         </div>
       )}
 
-      <div className="px-3 py-4 space-y-6 overflow-y-auto h-[calc(100%-120px)]">
-        {Object.entries(grouped).map(([category, items]) =>
+      <div className="px-4 py-4 scroll-area h-[calc(100%-120px)] space-y-6">
+        {grouped.map(({ category, items }) =>
           items.length ? (
             <div key={category}>
               {!collapsed && (
-                <div className="text-xs text-white/30 px-2 mb-3 uppercase tracking-wider">
+                <div className="text-xs text-white/30 uppercase tracking-wider mb-3">
                   {category}
                 </div>
               )}
 
-              <div className="flex flex-col gap-2">
+              <div
+                className={`grid ${
+                  collapsed ? "grid-cols-1" : "grid-cols-2"
+                } gap-3`}
+              >
                 {items.map((item) => {
                   const Icon = item.icon;
 
@@ -157,12 +307,12 @@ export default function Sidebar() {
                       key={item.type}
                       draggable
                       onDragStart={(e) => onDragStart(e, item.type)}
-                      className="group flex items-center gap-3 px-3 py-2 rounded-lg bg-slate-900/60 border border-white/5 hover:border-white/10 hover:scale-[1.03] transition-all duration-200 cursor-grab active:cursor-grabbing"
+                      className="group flex flex-col items-center justify-center p-4 rounded-2xl bg-slate-900/70 border border-white/5 hover:border-white/10 hover:scale-[1.04] transition-all cursor-grab active:cursor-grabbing"
                     >
-                      <Icon size={18} color={item.color} />
+                      <Icon size={22} color={item.color} />
 
                       {!collapsed && (
-                        <span className="text-sm text-white/80 group-hover:text-white">
+                        <span className="text-xs mt-2 text-center text-white/70 group-hover:text-white">
                           {item.label}
                         </span>
                       )}

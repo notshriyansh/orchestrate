@@ -55,7 +55,7 @@ export default function RightPanel({
             </button>
           </div>
 
-          <div className="flex-1 overflow-y-auto p-6">
+          <div className="flex-1 scroll-area p-6">
             {tab === "inspector" && selectedNode && (
               <NodeInspector node={selectedNode} setNodes={setNodes} />
             )}

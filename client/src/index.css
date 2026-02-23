@@ -197,3 +197,29 @@ svg circle,
 svg line {
   transition: all 0.1s ease;
 }
+
+@keyframes flow {
+  to {
+    stroke-dashoffset: -24;
+  }
+}
+
+.scroll-area {
+  overflow-y: auto;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.scroll-area::-webkit-scrollbar {
+  width: 0px;
+  height: 0px;
+}
+
+.scroll-area:hover::-webkit-scrollbar {
+  width: 6px;
+}
+
+.scroll-area:hover::-webkit-scrollbar-thumb {
+  background: rgba(148, 163, 184, 0.3);
+  border-radius: 8px;
+}
