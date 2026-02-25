@@ -14,6 +14,7 @@ export default function EditorHeader({
   setReplaySpeed,
   setNodes,
   setEdges,
+  onReset,
 }: any) {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [importing, setImporting] = useState(false);
@@ -95,6 +96,12 @@ export default function EditorHeader({
         >
           <Play size={16} />
           {isRunning ? "Running..." : "Run"}
+        </button>
+        <button
+          onClick={onReset}
+          className="bg-red-600 hover:bg-red-700 px-3 py-1 rounded"
+        >
+          Reset
         </button>
       </div>
 

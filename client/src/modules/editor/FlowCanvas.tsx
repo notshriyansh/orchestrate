@@ -22,6 +22,7 @@ import DatabaseNode from "./nodes/DatabaseNode";
 import ParallelNode from "./nodes/ParallelNode";
 import InfraNode from "./nodes/InfraNode";
 import CustomEdge from "./edges/CustomEdges";
+import DrawingLayer from "../../components/DrawingLayer";
 
 interface Props {
   nodes: Node[];
@@ -30,6 +31,9 @@ interface Props {
   setEdges: React.Dispatch<React.SetStateAction<Edge[]>>;
   setSelectedNode: (node: Node | null) => void;
   drawMode: null | "rect" | "circle" | "arrow";
+  setDrawMode: React.Dispatch<
+    React.SetStateAction<null | "rect" | "circle" | "arrow">
+  >;
 }
 
 export default function FlowCanvas({
@@ -39,6 +43,7 @@ export default function FlowCanvas({
   setEdges,
   setSelectedNode,
   drawMode,
+  setDrawMode,
 }: Props) {
   const { project } = useReactFlow();
 
@@ -188,6 +193,7 @@ export default function FlowCanvas({
         />
 
         <Controls />
+        <DrawingLayer drawMode={drawMode} setDrawMode={setDrawMode} />
       </ReactFlow>
     </div>
   );

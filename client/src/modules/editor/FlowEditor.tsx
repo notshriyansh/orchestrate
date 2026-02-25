@@ -14,7 +14,6 @@ import SimulationBar from "./SimulationBar";
 import useExecutionSocket from "../workflow/useExecutionSocket";
 import useWorkflowAutoSave from "../workflow/useWorkflowAutoSave";
 
-import DrawingLayer from "../../components/DrawingLayer";
 import DrawToolbar from "../../components/DrawToolbar";
 
 export default function FlowEditor() {
@@ -112,6 +111,12 @@ export default function FlowEditor() {
     setIsRunning(false);
   };
 
+  const resetCanvas = () => {
+    setNodes([]);
+    setEdges([]);
+    setSelectedNode(null);
+  };
+
   const replayExecution = async (execution: any) => {
     if (!execution?.logs?.length) return;
 
@@ -185,6 +190,7 @@ export default function FlowEditor() {
           setReplaySpeed={setReplaySpeed}
           setNodes={setNodes}
           setEdges={setEdges}
+          onReset={resetCanvas}
         />
 
         <div className="flex-1 relative">
@@ -197,9 +203,8 @@ export default function FlowEditor() {
             setEdges={setEdges}
             setSelectedNode={setSelectedNode}
             drawMode={drawMode}
+            setDrawMode={setDrawMode}
           />
-
-          <DrawingLayer drawMode={drawMode} setDrawMode={setDrawMode} />
         </div>
 
         <SimulationBar progress={progress} isRunning={isRunning} />

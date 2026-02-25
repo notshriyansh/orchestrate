@@ -22,14 +22,17 @@ export default function DrawingLayer({
 
   const [shapes, setShapes] = useState<Shape[]>([]);
   const [current, setCurrent] = useState<Shape | null>(null);
+  const isDrawing = useRef(false);
 
   useEffect(() => {
     const handler = (e: KeyboardEvent) => {
       if (e.key === "Escape") {
+        isDrawing.current = false;
         setCurrent(null);
         setDrawMode(null);
       }
     };
+
     window.addEventListener("keydown", handler);
     return () => window.removeEventListener("keydown", handler);
   }, []);
@@ -40,35 +43,29 @@ export default function DrawingLayer({
     const svg = svgRef.current;
     if (!svg) return;
 
-    let startX = 0;
-    let startY = 0;
-
     const onMouseDown = (e: MouseEvent) => {
-      const bounds = svg.getBoundingClientRect();
+      isDrawing.current = true;
 
+      const bounds = svg.getBoundingClientRect();
       const pos = project({
         x: e.clientX - bounds.left,
         y: e.clientY - bounds.top,
       });
 
-      startX = pos.x;
-      startY = pos.y;
-
       setCurrent({
         id: Date.now().toString(),
         type: drawMode,
-        x1: startX,
-        y1: startY,
-        x2: startX,
-        y2: startY,
+        x1: pos.x,
+        y1: pos.y,
+        x2: pos.x,
+        y2: pos.y,
       });
     };
 
     const onMouseMove = (e: MouseEvent) => {
-      if (!current) return;
+      if (!isDrawing.current) return;
 
       const bounds = svg.getBoundingClientRect();
-
       const pos = project({
         x: e.clientX - bounds.left,
         y: e.clientY - bounds.top,
@@ -86,33 +83,64 @@ export default function DrawingLayer({
     };
 
     const onMouseUp = () => {
-      if (current) {
+      if (isDrawing.current && current) {
         setShapes((prev) => [...prev, current]);
-        setCurrent(null);
       }
+
+      isDrawing.current = false;
+      setCurrent(null);
       setDrawMode(null);
     };
 
     svg.addEventListener("mousedown", onMouseDown);
     svg.addEventListener("mousemove", onMouseMove);
-    svg.addEventListener("mouseup", onMouseUp);
+    window.addEventListener("mouseup", onMouseUp);
 
     return () => {
       svg.removeEventListener("mousedown", onMouseDown);
       svg.removeEventListener("mousemove", onMouseMove);
-      svg.removeEventListener("mouseup", onMouseUp);
+      window.removeEventListener("mouseup", onMouseUp);
     };
-  }, [drawMode, current]);
+  }, [drawMode, project]);
+
+  const clearDrawings = () => {
+    setShapes([]);
+    setCurrent(null);
+  };
 
   return (
-    <svg
-      ref={svgRef}
-      className="absolute inset-0 z-30"
-      style={{ pointerEvents: drawMode ? "all" : "none" }}
-    >
-      {shapes.map(renderShape)}
-      {current && renderShape(current)}
-    </svg>
+    <>
+      <svg
+        ref={svgRef}
+        className="absolute inset-0 z-30"
+        style={{ pointerEvents: drawMode ? "all" : "none" }}
+      >
+        <defs>
+          <marker
+            id="arrowhead"
+            markerWidth="8"
+            markerHeight="8"
+            refX="6"
+            refY="3"
+            orient="auto"
+          >
+            <polygon points="0 0, 6 3, 0 6" fill="#3b82f6" />
+          </marker>
+        </defs>
+
+        {shapes.map(renderShape)}
+        {current && renderShape(current)}
+      </svg>
+
+      {shapes.length > 0 && (
+        <button
+          onClick={clearDrawings}
+          className="absolute bottom-20 right-6 z-40 bg-slate-800 hover:bg-slate-700 px-4 py-2 rounded-lg text-sm border border-white/10"
+        >
+          Clear Drawings
+        </button>
+      )}
+    </>
   );
 }
 

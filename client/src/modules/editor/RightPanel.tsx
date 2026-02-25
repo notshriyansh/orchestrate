@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { ChevronRight, ChevronLeft } from "lucide-react";
+import { ChevronRight, ChevronLeft, Trash2, Copy, Lock } from "lucide-react";
 import NodeInspector from "./NodeInspector";
 
 export default function RightPanel({
@@ -12,23 +12,44 @@ export default function RightPanel({
   const [collapsed, setCollapsed] = useState(false);
 
   useEffect(() => {
-    if (selectedNode) setTab("inspector");
+    if (selectedNode) {
+      setCollapsed(false);
+      setTab("inspector");
+    }
   }, [selectedNode]);
+
+  const deleteNode = () => {
+    if (!selectedNode) return;
+    setNodes((prev: any[]) => prev.filter((n) => n.id !== selectedNode.id));
+  };
+
+  const duplicateNode = () => {
+    if (!selectedNode) return;
+
+    const clone = {
+      ...selectedNode,
+      id: Date.now().toString(),
+      position: {
+        x: selectedNode.position.x + 40,
+        y: selectedNode.position.y + 40,
+      },
+    };
+
+    setNodes((prev: any[]) => [...prev, clone]);
+  };
 
   return (
     <div
-      className={`transition-all duration-300 border-l border-white/10 bg-slate-950 flex flex-col ${
-        collapsed ? "w-12" : "w-105"
+      className={`relative transition-all duration-500 ease-in-out border-l border-white/10 bg-slate-950 flex flex-col ${
+        collapsed ? "w-0 opacity-0" : "w-105 opacity-100"
       }`}
     >
-      <div className="flex justify-end p-2">
-        <button
-          onClick={() => setCollapsed(!collapsed)}
-          className="text-slate-400 hover:text-white"
-        >
-          {collapsed ? <ChevronLeft size={18} /> : <ChevronRight size={18} />}
-        </button>
-      </div>
+      <button
+        onClick={() => setCollapsed(!collapsed)}
+        className="absolute -left-5 top-6 bg-slate-800 border border-white/10 p-1 rounded-full z-50"
+      >
+        {collapsed ? <ChevronLeft size={16} /> : <ChevronRight size={16} />}
+      </button>
 
       {!collapsed && (
         <>
@@ -55,9 +76,31 @@ export default function RightPanel({
             </button>
           </div>
 
-          <div className="flex-1 scroll-area p-6">
+          <div className="flex-1 overflow-y-auto p-6 scroll-area">
             {tab === "inspector" && selectedNode && (
-              <NodeInspector node={selectedNode} setNodes={setNodes} />
+              <>
+                <div className="flex gap-3 mb-6">
+                  <button
+                    onClick={duplicateNode}
+                    className="bg-slate-800 hover:bg-slate-700 p-2 rounded"
+                  >
+                    <Copy size={16} />
+                  </button>
+
+                  <button
+                    onClick={deleteNode}
+                    className="bg-red-600 hover:bg-red-700 p-2 rounded"
+                  >
+                    <Trash2 size={16} />
+                  </button>
+
+                  <button className="bg-slate-800 hover:bg-slate-700 p-2 rounded">
+                    <Lock size={16} />
+                  </button>
+                </div>
+
+                <NodeInspector node={selectedNode} setNodes={setNodes} />
+              </>
             )}
 
             {tab === "history" &&
@@ -67,9 +110,13 @@ export default function RightPanel({
                   onClick={() => onReplay(exec)}
                   className="p-4 mb-4 bg-slate-800 rounded-lg cursor-pointer hover:bg-slate-700 transition"
                 >
-                  <div className="text-white font-medium">
+                  <div className="text-white font-medium flex justify-between">
                     {exec.status.toUpperCase()}
+                    <span className="text-xs text-slate-400">
+                      {exec.logs?.length || 0} steps
+                    </span>
                   </div>
+
                   <div className="text-xs text-slate-400">
                     {new Date(exec.startedAt).toLocaleTimeString()}
                   </div>
