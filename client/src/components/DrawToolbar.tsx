@@ -8,7 +8,6 @@ import {
   Eraser,
   Hand,
   Trash2,
-  Grid,
 } from "lucide-react";
 
 export default function DrawToolbar({
@@ -28,7 +27,7 @@ export default function DrawToolbar({
   ];
 
   return (
-    <div className="absolute top-6 left-1/2 -translate-x-1/2 z-50 bg-slate-900/90 backdrop-blur-xl border border-white/10 rounded-xl px-4 py-2 flex gap-2 shadow-2xl">
+    <div className="absolute top-20 left-1/2 -translate-x-1/2 z-40 bg-slate-900/90 backdrop-blur-xl border border-white/10 rounded-xl px-4 py-2 flex gap-2 shadow-2xl">
       {tools.map((tool) => {
         const Icon = tool.icon;
         const active = drawMode === tool.id;

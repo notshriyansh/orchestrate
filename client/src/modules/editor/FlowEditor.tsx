@@ -178,7 +178,7 @@ export default function FlowEditor() {
     <div className="flex h-screen w-screen bg-slate-950 overflow-hidden">
       <Sidebar />
 
-      <div className="flex flex-col flex-1 relative">
+      <div className="flex flex-col flex-1 relative z-10">
         <EditorHeader
           workflowId={workflowId}
           workflowName={workflowName}

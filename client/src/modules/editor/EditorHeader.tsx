@@ -1,7 +1,21 @@
-import { Upload, Play, RotateCcw } from "lucide-react";
+import {
+  Upload,
+  Play,
+  RotateCcw,
+  Download,
+  Film,
+  Image,
+  Video,
+  Trash2,
+} from "lucide-react";
 import { useRef, useState } from "react";
 import { auth } from "../../lib/firebase";
 import api from "../../lib/api";
+import {
+  exportAsImage,
+  exportAsGIF,
+  exportAsMP4,
+} from "../../utils/exportCanvas";
 
 export default function EditorHeader({
   workflowId,
@@ -18,6 +32,7 @@ export default function EditorHeader({
 }: any) {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [importing, setImporting] = useState(false);
+  const [showExport, setShowExport] = useState(false);
 
   const handleImportClick = () => {
     fileInputRef.current?.click();
@@ -26,7 +41,6 @@ export default function EditorHeader({
   const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     e.target.value = "";
-
     if (!file || !workflowId) return;
 
     setImporting(true);
@@ -34,7 +48,6 @@ export default function EditorHeader({
     try {
       const text = await file.text();
       const parsed = JSON.parse(text);
-
       const token = await auth.currentUser?.getIdToken();
       if (!token) return;
 
@@ -52,14 +65,14 @@ export default function EditorHeader({
   };
 
   return (
-    <div className="h-16 px-6 flex items-center justify-between backdrop-blur-xl bg-slate-900/70 border-b border-white/10">
+    <div className="relative z-50 h-16 px-6 flex items-center justify-between bg-slate-900/95 backdrop-blur-xl border-b border-white/10">
       <input
         value={workflowName}
         onChange={(e) => setWorkflowName(e.target.value)}
         className="text-lg font-semibold bg-transparent text-white outline-none border-b border-transparent focus:border-blue-500 transition"
       />
 
-      <div className="flex items-center gap-3">
+      <div className="flex items-center gap-4">
         <button
           onClick={handleImportClick}
           disabled={importing}
@@ -68,6 +81,44 @@ export default function EditorHeader({
           <Upload size={14} />
           {importing ? "Importing..." : "Import"}
         </button>
+
+        <div className="relative">
+          <button
+            onClick={() => setShowExport(!showExport)}
+            className="flex items-center gap-2 px-3 py-2 rounded-lg bg-slate-800 hover:bg-slate-700 transition text-sm"
+          >
+            <Download size={14} />
+            Export
+          </button>
+
+          {showExport && (
+            <div className="absolute right-0 mt-2 w-40 bg-slate-800 border border-white/10 rounded-lg shadow-lg z-50">
+              <button
+                onClick={() => exportAsImage()}
+                className="flex items-center gap-2 w-full px-3 py-2 hover:bg-slate-700 text-sm"
+              >
+                <Image size={14} />
+                PNG
+              </button>
+
+              <button
+                onClick={() => exportAsGIF()}
+                className="flex items-center gap-2 w-full px-3 py-2 hover:bg-slate-700 text-sm"
+              >
+                <Film size={14} />
+                GIF
+              </button>
+
+              <button
+                onClick={() => exportAsMP4()}
+                className="flex items-center gap-2 w-full px-3 py-2 hover:bg-slate-700 text-sm"
+              >
+                <Video size={14} />
+                MP4
+              </button>
+            </div>
+          )}
+        </div>
 
         <div className="w-px h-6 bg-white/10" />
 
@@ -99,8 +150,9 @@ export default function EditorHeader({
         </button>
         <button
           onClick={onReset}
-          className="bg-red-600 hover:bg-red-700 px-3 py-1 rounded"
+          className="flex items-center gap-2 px-3 py-2 rounded-lg bg-red-600 hover:bg-red-700 transition text-sm"
         >
+          <Trash2 size={14} />
           Reset
         </button>
       </div>

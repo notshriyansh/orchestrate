@@ -17,24 +17,21 @@ export default function DrawingLayer({
   drawMode: null | "rect" | "circle" | "arrow";
   setDrawMode: any;
 }) {
-  const { project } = useReactFlow();
+  const { screenToFlowPosition } = useReactFlow();
   const svgRef = useRef<SVGSVGElement>(null);
 
   const [shapes, setShapes] = useState<Shape[]>([]);
   const [current, setCurrent] = useState<Shape | null>(null);
-  const isDrawing = useRef(false);
 
   useEffect(() => {
-    const handler = (e: KeyboardEvent) => {
+    const onKey = (e: KeyboardEvent) => {
       if (e.key === "Escape") {
-        isDrawing.current = false;
         setCurrent(null);
         setDrawMode(null);
       }
     };
-
-    window.addEventListener("keydown", handler);
-    return () => window.removeEventListener("keydown", handler);
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
   }, []);
 
   useEffect(() => {
@@ -43,13 +40,10 @@ export default function DrawingLayer({
     const svg = svgRef.current;
     if (!svg) return;
 
-    const onMouseDown = (e: MouseEvent) => {
-      isDrawing.current = true;
-
-      const bounds = svg.getBoundingClientRect();
-      const pos = project({
-        x: e.clientX - bounds.left,
-        y: e.clientY - bounds.top,
+    const handleMouseDown = (e: MouseEvent) => {
+      const pos = screenToFlowPosition({
+        x: e.clientX,
+        y: e.clientY,
       });
 
       setCurrent({
@@ -62,13 +56,12 @@ export default function DrawingLayer({
       });
     };
 
-    const onMouseMove = (e: MouseEvent) => {
-      if (!isDrawing.current) return;
+    const handleMouseMove = (e: MouseEvent) => {
+      if (!current) return;
 
-      const bounds = svg.getBoundingClientRect();
-      const pos = project({
-        x: e.clientX - bounds.left,
-        y: e.clientY - bounds.top,
+      const pos = screenToFlowPosition({
+        x: e.clientX,
+        y: e.clientY,
       });
 
       setCurrent((prev) =>
@@ -82,65 +75,34 @@ export default function DrawingLayer({
       );
     };
 
-    const onMouseUp = () => {
-      if (isDrawing.current && current) {
+    const handleMouseUp = () => {
+      if (current) {
         setShapes((prev) => [...prev, current]);
+        setCurrent(null);
       }
-
-      isDrawing.current = false;
-      setCurrent(null);
       setDrawMode(null);
     };
 
-    svg.addEventListener("mousedown", onMouseDown);
-    svg.addEventListener("mousemove", onMouseMove);
-    window.addEventListener("mouseup", onMouseUp);
+    svg.addEventListener("mousedown", handleMouseDown);
+    svg.addEventListener("mousemove", handleMouseMove);
+    svg.addEventListener("mouseup", handleMouseUp);
 
     return () => {
-      svg.removeEventListener("mousedown", onMouseDown);
-      svg.removeEventListener("mousemove", onMouseMove);
-      window.removeEventListener("mouseup", onMouseUp);
+      svg.removeEventListener("mousedown", handleMouseDown);
+      svg.removeEventListener("mousemove", handleMouseMove);
+      svg.removeEventListener("mouseup", handleMouseUp);
     };
-  }, [drawMode, project]);
-
-  const clearDrawings = () => {
-    setShapes([]);
-    setCurrent(null);
-  };
+  }, [drawMode, current]);
 
   return (
-    <>
-      <svg
-        ref={svgRef}
-        className="absolute inset-0 z-30"
-        style={{ pointerEvents: drawMode ? "all" : "none" }}
-      >
-        <defs>
-          <marker
-            id="arrowhead"
-            markerWidth="8"
-            markerHeight="8"
-            refX="6"
-            refY="3"
-            orient="auto"
-          >
-            <polygon points="0 0, 6 3, 0 6" fill="#3b82f6" />
-          </marker>
-        </defs>
-
-        {shapes.map(renderShape)}
-        {current && renderShape(current)}
-      </svg>
-
-      {shapes.length > 0 && (
-        <button
-          onClick={clearDrawings}
-          className="absolute bottom-20 right-6 z-40 bg-slate-800 hover:bg-slate-700 px-4 py-2 rounded-lg text-sm border border-white/10"
-        >
-          Clear Drawings
-        </button>
-      )}
-    </>
+    <svg
+      ref={svgRef}
+      className="absolute inset-0 z-50"
+      style={{ pointerEvents: drawMode ? "all" : "none" }}
+    >
+      {shapes.map(renderShape)}
+      {current && renderShape(current)}
+    </svg>
   );
 }
 
@@ -156,7 +118,6 @@ function renderShape(shape: Shape) {
     const y = Math.min(shape.y1, shape.y2);
     const w = Math.abs(shape.x2 - shape.x1);
     const h = Math.abs(shape.y2 - shape.y1);
-
     return <rect key={shape.id} x={x} y={y} width={w} height={h} {...base} />;
   }
 
@@ -164,7 +125,6 @@ function renderShape(shape: Shape) {
     const dx = shape.x2 - shape.x1;
     const dy = shape.y2 - shape.y1;
     const r = Math.sqrt(dx * dx + dy * dy);
-
     return (
       <circle key={shape.id} cx={shape.x1} cy={shape.y1} r={r} {...base} />
     );
@@ -179,7 +139,6 @@ function renderShape(shape: Shape) {
         x2={shape.x2}
         y2={shape.y2}
         {...base}
-        markerEnd="url(#arrowhead)"
       />
     );
   }
