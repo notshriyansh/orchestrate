@@ -4,52 +4,39 @@ import Button from "../../components/ui/Button";
 
 export default function HeroSection() {
   return (
-    <section
-      style={{
-        paddingTop: "140px",
-        paddingBottom: "120px",
-        textAlign: "center",
-        background: "#0f172a",
-        color: "white",
-      }}
-    >
-      <div style={{ maxWidth: 700, margin: "0 auto", padding: "0 20px" }}>
-        <h1
-          style={{
-            fontSize: 48,
-            fontWeight: 700,
-            lineHeight: 1.2,
-            marginBottom: 24,
-          }}
-        >
-          Debug API workflows,
-          <span style={{ color: "#3b82f6" }}> visually</span>
+    <section className="relative pt-36 pb-28 text-center overflow-hidden">
+      <div className="absolute inset-0 pointer-events-none">
+        <div className="absolute top-1/3 left-1/2 -translate-x-1/2 w-200 h-125 bg-blue-600/10 blur-[140px] rounded-full" />
+      </div>
+
+      <div className="container relative max-w-4xl mx-auto">
+        <div className="inline-flex items-center gap-2 px-4 py-1.5 mb-8 text-xs rounded-full border border-white/10 bg-white/5 text-white/60">
+          System design meets API debugging
+        </div>
+
+        <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold leading-[1.1] mb-6 tracking-tight">
+          Visualize. Execute. Debug.
+          <br />
+          <span className="text-blue-500">Complex API workflows.</span>
         </h1>
 
-        <p
-          style={{
-            color: "#94a3b8",
-            fontSize: 18,
-            marginBottom: 36,
-          }}
-        >
-          Build, execute, and debug multi-step API workflows on an interactive
-          canvas. See every request and response in real time.
+        <p className="text-lg text-white/60 max-w-2xl mx-auto mb-10">
+          Orchestrate is a real-time visual canvas for building distributed
+          workflows — APIs, load balancers, queues, databases, and more — all
+          connected and executable with live propagation.
         </p>
 
-        <div style={{ display: "flex", justifyContent: "center", gap: 16 }}>
-          <Link to="/signup">
-            <Button size="lg">
-              Get Started
-              <ArrowRight style={{ marginLeft: 8 }} size={16} />
-            </Button>
-          </Link>
+        <div className="flex justify-center gap-4">
+          <Button size="lg">
+            <Link to="/dashboard">
+              Start Building
+              <ArrowRight className="ml-2 h-4 w-4" />
+            </Link>
+          </Button>
 
-          <Link to="/signin">
-            <Button size="lg" variant="outline">
-              Sign In
-            </Button>
-          </Link>
+          <Button size="lg" variant="outline">
+            <a href="#features">Explore Features</a>
+          </Button>
         </div>
       </div>
     </section>

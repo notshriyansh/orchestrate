@@ -2,10 +2,12 @@ import { useEffect, useState } from "react";
 import { auth } from "../../lib/firebase";
 import api from "../../lib/api";
 import WorkflowCard from "./WorkFlowCard";
+import CreateWorkflowCard from "./CreateWorkFlowCard";
 
 export default function WorkflowGrid() {
   const [workflows, setWorkflows] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [search, setSearch] = useState("");
 
   useEffect(() => {
     const fetchWorkflows = async () => {
@@ -46,11 +48,27 @@ export default function WorkflowGrid() {
     );
   }
 
+  const filtered = workflows.filter((w) =>
+    w.name.toLowerCase().includes(search.toLowerCase()),
+  );
+
   return (
-    <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-      {workflows.map((w) => (
-        <WorkflowCard key={w.id} workflow={w} />
-      ))}
-    </div>
+    <>
+      <div className="mb-8">
+        <input
+          placeholder="Search workflows..."
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          className="w-full md:w-80 px-4 py-2 bg-slate-900 border border-white/10 rounded-lg text-white placeholder-white/40"
+        />
+      </div>
+
+      <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <CreateWorkflowCard />
+        {filtered.map((w) => (
+          <WorkflowCard key={w.id} workflow={w} />
+        ))}
+      </div>
+    </>
   );
 }

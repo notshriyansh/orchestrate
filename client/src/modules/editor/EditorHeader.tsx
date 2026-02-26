@@ -2,7 +2,6 @@ import {
   Upload,
   Play,
   RotateCcw,
-  Download,
   Film,
   Image,
   Video,
@@ -35,6 +34,9 @@ export default function EditorHeader({
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [importing, setImporting] = useState(false);
   const [showExport, setShowExport] = useState(false);
+  const [exporting, setExporting] = useState<null | "png" | "gif" | "mp4">(
+    null,
+  );
 
   const navigate = useNavigate();
 
@@ -97,37 +99,55 @@ export default function EditorHeader({
 
         <div className="relative">
           <button
-            onClick={() => setShowExport(!showExport)}
+            onClick={() => setShowExport((prev) => !prev)}
             className="flex items-center gap-2 px-3 py-2 rounded-lg bg-slate-800 hover:bg-slate-700 transition text-sm"
           >
-            <Download size={14} />
+            <Film size={14} />
             Export
           </button>
 
           {showExport && (
-            <div className="absolute right-0 mt-2 w-40 bg-slate-800 border border-white/10 rounded-lg shadow-lg z-50">
+            <div className="absolute right-0 mt-2 w-44 bg-slate-800 border border-white/10 rounded-lg shadow-xl z-50">
               <button
-                onClick={() => exportAsImage()}
-                className="flex items-center gap-2 w-full px-3 py-2 hover:bg-slate-700 text-sm"
+                disabled={!!exporting}
+                onClick={async () => {
+                  setExporting("png");
+                  await exportAsImage();
+                  setExporting(null);
+                  setShowExport(false);
+                }}
+                className="flex items-center gap-2 w-full px-3 py-2 hover:bg-slate-700 text-sm disabled:opacity-50"
               >
                 <Image size={14} />
-                PNG
+                {exporting === "png" ? "Exporting..." : "PNG"}
               </button>
 
               <button
-                onClick={() => exportAsGIF()}
-                className="flex items-center gap-2 w-full px-3 py-2 hover:bg-slate-700 text-sm"
+                disabled={!!exporting}
+                onClick={async () => {
+                  setExporting("gif");
+                  await exportAsGIF();
+                  setExporting(null);
+                  setShowExport(false);
+                }}
+                className="flex items-center gap-2 w-full px-3 py-2 hover:bg-slate-700 text-sm disabled:opacity-50"
               >
                 <Film size={14} />
-                GIF
+                {exporting === "gif" ? "Rendering..." : "GIF"}
               </button>
 
               <button
-                onClick={() => exportAsMP4()}
-                className="flex items-center gap-2 w-full px-3 py-2 hover:bg-slate-700 text-sm"
+                disabled={!!exporting}
+                onClick={async () => {
+                  setExporting("mp4");
+                  await exportAsMP4();
+                  setExporting(null);
+                  setShowExport(false);
+                }}
+                className="flex items-center gap-2 w-full px-3 py-2 hover:bg-slate-700 text-sm disabled:opacity-50"
               >
                 <Video size={14} />
-                MP4
+                {exporting === "mp4" ? "Encoding..." : "MP4"}
               </button>
             </div>
           )}
