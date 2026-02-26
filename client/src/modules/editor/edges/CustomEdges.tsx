@@ -26,6 +26,7 @@ export default function CustomEdge({
   return (
     <>
       <BaseEdge
+        id={id}
         path={edgePath}
         markerEnd={markerEnd}
         style={{
@@ -35,9 +36,10 @@ export default function CustomEdge({
           animation: "flow 3s linear infinite",
           ...style,
         }}
+        data-animated="true"
       />
 
-      <circle r="4" fill="#60a5fa">
+      <circle r="4" fill="#60a5fa" className="edge-dot">
         <animateMotion dur="3s" repeatCount="indefinite" path={edgePath} />
       </circle>
 

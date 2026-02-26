@@ -7,6 +7,7 @@ import {
   Image,
   Video,
   Trash2,
+  ArrowLeft,
 } from "lucide-react";
 import { useRef, useState } from "react";
 import { auth } from "../../lib/firebase";
@@ -16,6 +17,7 @@ import {
   exportAsGIF,
   exportAsMP4,
 } from "../../utils/exportCanvas";
+import { useNavigate } from "react-router-dom";
 
 export default function EditorHeader({
   workflowId,
@@ -33,6 +35,8 @@ export default function EditorHeader({
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [importing, setImporting] = useState(false);
   const [showExport, setShowExport] = useState(false);
+
+  const navigate = useNavigate();
 
   const handleImportClick = () => {
     fileInputRef.current?.click();
@@ -66,12 +70,21 @@ export default function EditorHeader({
 
   return (
     <div className="relative z-50 h-16 px-6 flex items-center justify-between bg-slate-900/95 backdrop-blur-xl border-b border-white/10">
-      <input
-        value={workflowName}
-        onChange={(e) => setWorkflowName(e.target.value)}
-        className="text-lg font-semibold bg-transparent text-white outline-none border-b border-transparent focus:border-blue-500 transition"
-      />
+      <div className="flex items-center gap-4">
+        <button
+          onClick={() => navigate("/dashboard")}
+          className="flex items-center gap-2 px-3 py-2 rounded-lg bg-slate-800 hover:bg-slate-700 transition text-sm"
+        >
+          <ArrowLeft size={14} />
+          Dashboard
+        </button>
 
+        <input
+          value={workflowName}
+          onChange={(e) => setWorkflowName(e.target.value)}
+          className="text-lg font-semibold bg-transparent text-white outline-none border-b border-transparent focus:border-blue-500 transition"
+        />
+      </div>
       <div className="flex items-center gap-4">
         <button
           onClick={handleImportClick}
