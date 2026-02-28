@@ -1,17 +1,16 @@
 import admin from "firebase-admin";
 import { readFileSync } from "fs";
-import path from "path";
-import { fileURLToPath } from "url";
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
+let serviceAccount;
 
-const serviceAccountPath = path.join(
-  __dirname,
-  "../../firebase-service-account.json",
-);
-
-const serviceAccount = JSON.parse(readFileSync(serviceAccountPath, "utf-8"));
+if (process.env.NODE_ENV === "production") {
+  const secretPath = "/etc/secrets/firebase-service-account.json";
+  serviceAccount = JSON.parse(readFileSync(secretPath, "utf8"));
+} else {
+  serviceAccount = JSON.parse(
+    readFileSync("./firebase-service-account.json", "utf8"),
+  );
+}
 
 if (!admin.apps.length) {
   admin.initializeApp({
