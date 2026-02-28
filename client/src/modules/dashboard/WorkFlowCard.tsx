@@ -9,9 +9,10 @@ export default function WorkflowCard({ workflow }: any) {
 
   const handleDelete = async (e: React.MouseEvent) => {
     e.preventDefault();
+    e.stopPropagation();
 
-    const confirm = window.confirm("Delete this workflow permanently?");
-    if (!confirm) return;
+    const confirmDelete = window.confirm("Delete this workflow permanently?");
+    if (!confirmDelete) return;
 
     const token = await auth.currentUser?.getIdToken();
     if (!token) return;
@@ -35,20 +36,40 @@ export default function WorkflowCard({ workflow }: any) {
       to={`/editor/${workflow.id}`}
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
-      className="relative p-6 rounded-xl bg-slate-900/70 border border-white/10 hover:border-blue-500/40 transition backdrop-blur-xl group"
+      className="
+        relative
+        p-6
+        rounded-2xl
+        bg-[#0f172a]
+        border border-blue-500/20
+        transition-all
+        duration-300
+        group
+        overflow-hidden
+        hover:-translate-y-1
+        hover:border-blue-500/50
+        hover:shadow-[0_0_30px_rgba(59,130,246,0.25)]
+        "
     >
-      {hovered && (
-        <button
-          onClick={handleDelete}
-          className="absolute top-4 right-4 text-white/40 hover:text-red-400 transition"
-        >
-          <Trash2 size={16} />
-        </button>
-      )}
+      <button
+        onClick={handleDelete}
+        className={`
+          absolute 
+          top-4 
+          right-4 
+          text-white/40 
+          hover:text-red-400 
+          transition-all 
+          duration-200
+          ${hovered ? "opacity-100" : "opacity-0"}
+        `}
+      >
+        <Trash2 size={16} />
+      </button>
 
       <div className="flex items-center gap-2 mb-3">
         <Workflow className="h-4 w-4 text-blue-400" />
-        <span className="font-semibold text-white group-hover:text-blue-400 transition">
+        <span className="font-semibold text-white transition-colors duration-300 group-hover:text-blue-400">
           {workflow.name}
         </span>
       </div>
@@ -65,12 +86,24 @@ export default function WorkflowCard({ workflow }: any) {
 function StatusPill({ status }: { status: string }) {
   const styles =
     status === "success"
-      ? "bg-green-500/20 text-green-400"
+      ? "bg-green-500/15 text-green-400 border border-green-500/30"
       : status === "failed"
-        ? "bg-red-500/20 text-red-400"
-        : "bg-gray-500/20 text-gray-400";
+        ? "bg-red-500/15 text-red-400 border border-red-500/30"
+        : "bg-gray-500/15 text-gray-400 border border-gray-500/20";
 
   return (
-    <span className={`px-3 py-1 text-xs rounded-full ${styles}`}>{status}</span>
+    <span
+      className={`
+        px-3 
+        py-1 
+        text-xs 
+        rounded-full 
+        font-medium 
+        tracking-wide 
+        ${styles}
+      `}
+    >
+      {status}
+    </span>
   );
 }

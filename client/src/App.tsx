@@ -5,7 +5,6 @@ import SignUp from "./pages/SignUp";
 import DashboardPage from "./modules/dashboard/DashBoardPage";
 import Editor from "./pages/Editor";
 import ProtectedRoute from "./components/ProtectedRoutes";
-import Library from "./pages/Library";
 
 function App() {
   return (
@@ -28,15 +27,6 @@ function App() {
         element={
           <ProtectedRoute>
             <Editor />
-          </ProtectedRoute>
-        }
-      />
-
-      <Route
-        path="/library"
-        element={
-          <ProtectedRoute>
-            <Library />
           </ProtectedRoute>
         }
       />

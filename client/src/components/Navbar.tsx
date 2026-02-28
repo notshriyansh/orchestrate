@@ -31,12 +31,6 @@ export default function Navbar() {
                 </Button>
               </Link>
 
-              <Link to="/library">
-                <Button variant="ghost" size="sm">
-                  Library
-                </Button>
-              </Link>
-
               <Button size="sm" onClick={() => signOut(auth)}>
                 Logout
               </Button>
