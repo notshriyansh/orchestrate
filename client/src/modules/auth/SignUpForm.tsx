@@ -29,7 +29,9 @@ export default function SignUpForm() {
 
   return (
     <>
-      <h2 className="text-2xl font-bold mb-6 text-center">Create Account</h2>
+      <h2 className="text-3xl font-semibold text-center text-white mb-8">
+        Create Your Account
+      </h2>
 
       <div className="space-y-4">
         <Input

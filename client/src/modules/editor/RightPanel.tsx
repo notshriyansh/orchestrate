@@ -41,14 +41,21 @@ export default function RightPanel({
   return (
     <div
       className={`relative transition-all duration-500 ease-in-out border-l border-white/10 bg-slate-950 flex flex-col ${
-        collapsed ? "w-0 opacity-0" : "w-105 opacity-100"
+        collapsed
+          ? "w-0 opacity-0 pointer-events-none"
+          : "w-[320px] opacity-100"
       }`}
     >
       <button
         onClick={() => setCollapsed(!collapsed)}
-        className="absolute -left-5 top-6 bg-slate-800 border border-white/10 p-1 rounded-full z-50"
+        className="absolute -left-6 top-1/2 -translate-y-1/2 
+             bg-linear-to-b from-slate-800 to-slate-900
+             border border-white/10 
+             p-3 rounded-full shadow-lg
+             hover:scale-110 transition-all duration-300
+             hover:shadow-[0_0_20px_rgba(59,130,246,0.4)]"
       >
-        {collapsed ? <ChevronLeft size={16} /> : <ChevronRight size={16} />}
+        {collapsed ? <ChevronLeft size={18} /> : <ChevronRight size={18} />}
       </button>
 
       {!collapsed && (

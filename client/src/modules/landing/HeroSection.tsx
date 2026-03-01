@@ -4,7 +4,7 @@ import Button from "../../components/ui/Button";
 
 export default function HeroSection() {
   return (
-    <section className="relative pt-36 pb-28 text-center overflow-hidden">
+    <section className="relative pt-40 pb-32 text-center overflow-hidden">
       <div className="absolute inset-0 pointer-events-none">
         <div className="absolute top-1/3 left-1/2 -translate-x-1/2 w-200 h-125 bg-blue-600/10 blur-[140px] rounded-full" />
       </div>

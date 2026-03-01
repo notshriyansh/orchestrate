@@ -1,8 +1,6 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { signInWithEmailAndPassword } from "firebase/auth";
 import { auth } from "../../lib/firebase";
-import Button from "../../components/ui/Button";
-import Input from "../../components/ui/Input";
 import { Link, useNavigate } from "react-router-dom";
 
 export default function SignInForm() {
@@ -29,41 +27,52 @@ export default function SignInForm() {
 
   return (
     <>
-      <h2 className="text-2xl font-bold mb-6 text-center">Sign In</h2>
+      <h2 className="text-2xl font-semibold mb-8">Welcome back</h2>
 
-      <div className="space-y-4">
-        <Input
+      <div className="space-y-5">
+        <input
+          type="email"
           placeholder="Email"
           value={email}
-          onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-            setEmail(e.target.value)
-          }
+          onChange={(e) => setEmail(e.target.value)}
+          className="w-full px-4 py-3 rounded-lg 
+                   bg-[#0f172a] border border-white/10 
+                   focus:border-blue-500 outline-none 
+                   transition"
         />
 
-        <Input
+        <input
           type="password"
           placeholder="Password"
           value={password}
-          onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-            setPassword(e.target.value)
-          }
+          onChange={(e) => setPassword(e.target.value)}
+          className="w-full px-4 py-3 rounded-lg 
+                   bg-[#0f172a] border border-white/10 
+                   focus:border-blue-500 outline-none 
+                   transition"
         />
 
         {error && (
-          <div className="text-red-500 text-sm bg-red-500/10 p-2 rounded">
+          <div className="text-red-400 text-sm bg-red-500/10 p-3 rounded-lg">
             {error}
           </div>
         )}
 
-        <Button className="w-full" onClick={handleSignIn} disabled={loading}>
-          {loading ? "Signing in..." : "Sign In"}
-        </Button>
+        <button
+          onClick={handleSignIn}
+          disabled={loading}
+          className="w-full py-3 rounded-lg 
+                   bg-blue-600 hover:bg-blue-500
+                   transition font-medium"
+        >
+          {loading ? "Signing in..." : "Sign in"}
+        </button>
       </div>
 
-      <p className="text-sm text-muted-foreground mt-4 text-center">
+      <p className="text-sm text-slate-400 mt-6">
         No account?{" "}
-        <Link to="/signup" className="text-primary">
-          Sign up
+        <Link to="/signup" className="text-blue-400 hover:text-blue-300">
+          Create one
         </Link>
       </p>
     </>

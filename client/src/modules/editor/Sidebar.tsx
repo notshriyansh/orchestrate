@@ -249,7 +249,7 @@ export default function Sidebar() {
   return (
     <div
       className={`h-full bg-slate-950 border-r border-white/5 transition-all duration-300 ${
-        collapsed ? "w-20" : "w-80"
+        collapsed ? "w-20" : "w-65"
       }`}
     >
       <div className="flex items-center justify-between px-4 py-4 border-b border-white/5">
@@ -295,9 +295,11 @@ export default function Sidebar() {
               )}
 
               <div
-                className={`grid ${
-                  collapsed ? "grid-cols-1" : "grid-cols-2"
-                } gap-3`}
+                className={`${
+                  collapsed
+                    ? "flex flex-col items-center gap-4"
+                    : "grid grid-cols-2 gap-3"
+                }`}
               >
                 {items.map((item) => {
                   const Icon = item.icon;
@@ -307,9 +309,26 @@ export default function Sidebar() {
                       key={item.type}
                       draggable
                       onDragStart={(e) => onDragStart(e, item.type)}
-                      className="group flex flex-col items-center justify-center p-4 rounded-2xl bg-slate-900/70 border border-white/5 hover:border-white/10 hover:scale-[1.04] transition-all cursor-grab active:cursor-grabbing"
+                      className={`
+                          group
+                          flex
+                          items-center
+                          justify-center
+                          transition
+                          cursor-grab
+                          active:cursor-grabbing
+                          ${
+                            collapsed
+                              ? "h-14 w-14 mx-auto rounded-xl bg-slate-900 border border-white/10 hover:bg-slate-800"
+                              : "flex-col h-20 rounded-xl bg-slate-900 border border-white/10 hover:border-blue-500/40 hover:bg-slate-800"
+                          }
+                        `}
                     >
-                      <Icon size={22} color={item.color} />
+                      <Icon
+                        size={collapsed ? 22 : 20}
+                        className="transition group-hover:scale-110"
+                        style={{ color: item.color }}
+                      />
 
                       {!collapsed && (
                         <span className="text-xs mt-2 text-center text-white/70 group-hover:text-white">

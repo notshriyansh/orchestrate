@@ -22,7 +22,6 @@ import DatabaseNode from "./nodes/DatabaseNode";
 import ParallelNode from "./nodes/ParallelNode";
 import InfraNode from "./nodes/InfraNode";
 import CustomEdge from "./edges/CustomEdges";
-import DrawingLayer from "../../components/DrawingLayer";
 
 interface Props {
   nodes: Node[];
@@ -30,10 +29,6 @@ interface Props {
   setNodes: React.Dispatch<React.SetStateAction<Node[]>>;
   setEdges: React.Dispatch<React.SetStateAction<Edge[]>>;
   setSelectedNode: (node: Node | null) => void;
-  drawMode: null | "rect" | "circle" | "arrow";
-  setDrawMode: React.Dispatch<
-    React.SetStateAction<null | "rect" | "circle" | "arrow">
-  >;
 }
 
 export default function FlowCanvas({
@@ -42,8 +37,6 @@ export default function FlowCanvas({
   setNodes,
   setEdges,
   setSelectedNode,
-  drawMode,
-  setDrawMode,
 }: Props) {
   const { project } = useReactFlow();
 
@@ -185,22 +178,28 @@ export default function FlowCanvas({
         onPaneClick={() => setSelectedNode(null)}
         onDrop={onDrop}
         onDragOver={onDragOver}
-        panOnDrag={!drawMode}
-        zoomOnScroll={!drawMode}
-        nodesDraggable={!drawMode}
-        elementsSelectable={!drawMode}
+        panOnDrag
+        zoomOnScroll
+        nodesDraggable
+        elementsSelectable
         fitView
         proOptions={{ hideAttribution: true }}
       >
         <Background
+          variant={BackgroundVariant.Dots}
+          gap={22}
+          size={1.2}
+          color="#1f2a44"
+        />
+
+        <Background
           variant={BackgroundVariant.Lines}
-          gap={40}
+          gap={110}
           size={1}
           color="#1e293b"
         />
 
         <Controls />
-        <DrawingLayer drawMode={drawMode} setDrawMode={setDrawMode} />
       </ReactFlow>
     </div>
   );

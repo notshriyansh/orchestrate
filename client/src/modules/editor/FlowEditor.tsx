@@ -14,8 +14,6 @@ import SimulationBar from "./SimulationBar";
 import useExecutionSocket from "../workflow/useExecutionSocket";
 import useWorkflowAutoSave from "../workflow/useWorkflowAutoSave";
 
-import DrawToolbar from "../../components/DrawToolbar";
-
 export default function FlowEditor() {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -31,10 +29,6 @@ export default function FlowEditor() {
   const [isRunning, setIsRunning] = useState(false);
   const [progress, setProgress] = useState(0);
   const [replaySpeed, setReplaySpeed] = useState(600);
-
-  const [drawMode, setDrawMode] = useState<null | "rect" | "circle" | "arrow">(
-    null,
-  );
 
   useExecutionSocket(setNodes);
   useWorkflowAutoSave(workflowId, nodes, edges, workflowName);
@@ -188,7 +182,7 @@ export default function FlowEditor() {
     <div className="flex h-screen w-screen bg-slate-950 overflow-hidden">
       <Sidebar />
 
-      <div className="flex flex-col flex-1 relative z-10">
+      <div className="flex flex-col flex-1 min-w-0">
         <EditorHeader
           workflowId={workflowId}
           workflowName={workflowName}
@@ -203,31 +197,29 @@ export default function FlowEditor() {
           onReset={resetCanvas}
         />
 
-        <div className="flex-1 relative">
-          <DrawToolbar drawMode={drawMode} setDrawMode={setDrawMode} />
+        <div className="flex flex-1 min-h-0">
+          <div className="flex-1 min-w-0 relative">
+            <FlowCanvas
+              nodes={nodes}
+              edges={edges}
+              setNodes={setNodes}
+              setEdges={setEdges}
+              setSelectedNode={setSelectedNode}
+            />
+          </div>
 
-          <FlowCanvas
-            nodes={nodes}
-            edges={edges}
+          <RightPanel
+            selectedNode={selectedNode}
+            history={history}
+            onReplay={(exec: any) => {
+              setSelectedExecution(exec);
+            }}
             setNodes={setNodes}
-            setEdges={setEdges}
-            setSelectedNode={setSelectedNode}
-            drawMode={drawMode}
-            setDrawMode={setDrawMode}
           />
         </div>
 
         <SimulationBar progress={progress} isRunning={isRunning} />
       </div>
-
-      <RightPanel
-        selectedNode={selectedNode}
-        history={history}
-        onReplay={(exec: any) => {
-          setSelectedExecution(exec);
-        }}
-        setNodes={setNodes}
-      />
 
       {selectedExecution && (
         <ExecutionModal
