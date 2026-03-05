@@ -12,16 +12,9 @@ import ReactFlow, {
   MarkerType,
 } from "reactflow";
 import "reactflow/dist/style.css";
-
-import HttpNode from "./nodes/HttpNode";
-import DelayNode from "./nodes/DelayNode";
-import ConditionNode from "./nodes/ConditionNode";
-import WebhookNode from "./nodes/WebhookNode";
-import TransformNode from "./nodes/TransformNode";
-import DatabaseNode from "./nodes/DatabaseNode";
-import ParallelNode from "./nodes/ParallelNode";
 import InfraNode from "./nodes/InfraNode";
 import CustomEdge from "./edges/CustomEdges";
+import { INFRA_NODE_MAP } from "./nodes/infraNodeRegistry";
 
 interface Props {
   nodes: Node[];
@@ -40,36 +33,13 @@ export default function FlowCanvas({
 }: Props) {
   const { project } = useReactFlow();
 
-  const nodeTypes = useMemo(
-    () => ({
-      http: HttpNode,
-      delay: DelayNode,
-      condition: ConditionNode,
-      webhook: WebhookNode,
-      transform: TransformNode,
-      database: DatabaseNode,
-      parallel: ParallelNode,
-
-      loadbalancer: InfraNode,
-      apigateway: InfraNode,
-      cache: InfraNode,
-      kvstore: InfraNode,
-      graphdb: InfraNode,
-      vectordb: InfraNode,
-      objectstore: InfraNode,
-      scheduler: InfraNode,
-      appserver: InfraNode,
-      reverseproxy: InfraNode,
-      cdn: InfraNode,
-      queue: InfraNode,
-      eventbus: InfraNode,
-      worker: InfraNode,
-      container: InfraNode,
-      auth: InfraNode,
-      firewall: InfraNode,
-    }),
-    [],
-  );
+  const nodeTypes = useMemo(() => {
+    const map: Record<string, any> = {};
+    Object.keys(INFRA_NODE_MAP).forEach((type) => {
+      map[type] = InfraNode;
+    });
+    return map;
+  }, []);
 
   const edgeTypes = useMemo(
     () => ({
@@ -90,19 +60,23 @@ export default function FlowCanvas({
       const type = event.dataTransfer.getData("application/reactflow");
       if (!type) return;
 
+      const definition = INFRA_NODE_MAP[type];
+      if (!definition) return;
+
       const position = project({
         x: event.clientX,
         y: event.clientY,
       });
 
       const newNode: Node = {
-        id: `${Date.now()}`,
+        id: crypto.randomUUID(),
         type,
         position,
         data: {
-          label: type.toUpperCase(),
+          label: definition.label,
           status: "idle",
           health: "healthy",
+          definition,
         },
       };
 

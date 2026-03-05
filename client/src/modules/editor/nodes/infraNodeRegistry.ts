@@ -35,6 +35,41 @@ export interface InfraNodeDefinition {
 
 export const INFRA_NODE_REGISTRY: InfraNodeDefinition[] = [
   {
+    type: "http",
+    label: "HTTP Request",
+    icon: Globe,
+    category: "processing",
+    color: "#38bdf8",
+  },
+  {
+    type: "webhook",
+    label: "Webhook",
+    icon: Radio,
+    category: "processing",
+    color: "#22c55e",
+  },
+  {
+    type: "transform",
+    label: "Transform",
+    icon: Layers,
+    category: "processing",
+    color: "#f97316",
+  },
+  {
+    type: "delay",
+    label: "Delay",
+    icon: Timer,
+    category: "processing",
+    color: "#facc15",
+  },
+  {
+    type: "parallel",
+    label: "Parallel",
+    icon: GitBranch,
+    category: "processing",
+    color: "#a78bfa",
+  },
+  {
     type: "loadbalancer",
     label: "Load Balancer",
     icon: Globe,
@@ -167,3 +202,7 @@ export const INFRA_NODE_REGISTRY: InfraNodeDefinition[] = [
     color: "#7c3aed",
   },
 ];
+
+export const INFRA_NODE_MAP = Object.fromEntries(
+  INFRA_NODE_REGISTRY.map((n) => [n.type, n]),
+);

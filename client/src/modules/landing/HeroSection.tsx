@@ -27,12 +27,12 @@ export default function HeroSection() {
         </p>
 
         <div className="flex justify-center gap-4">
-          <Button size="lg">
-            <Link to="/dashboard">
+          <Link to="/dashboard">
+            <Button size="lg">
               Start Building
-              <ArrowRight className="ml-2 h-4 w-4" />
-            </Link>
-          </Button>
+              <ArrowRight size={16} />
+            </Button>
+          </Link>
 
           <Button size="lg" variant="outline">
             <a href="#features">Explore Features</a>

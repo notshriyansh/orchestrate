@@ -17,6 +17,10 @@ export default function Button({
     cursor: "pointer",
     transition: "all 0.2s ease",
     border: "1px solid transparent",
+    display: "inline-flex",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: 6,
   };
 
   const variants: Record<string, React.CSSProperties> = {
