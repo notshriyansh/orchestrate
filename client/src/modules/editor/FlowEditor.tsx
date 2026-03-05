@@ -13,6 +13,7 @@ import SimulationBar from "./SimulationBar";
 
 import useExecutionSocket from "../workflow/useExecutionSocket";
 import useWorkflowAutoSave from "../workflow/useWorkflowAutoSave";
+import ExamplesModal from "./examples/ExamplesModal";
 
 export default function FlowEditor() {
   const { id } = useParams();
@@ -29,6 +30,7 @@ export default function FlowEditor() {
   const [isRunning, setIsRunning] = useState(false);
   const [progress, setProgress] = useState(0);
   const [replaySpeed, setReplaySpeed] = useState(600);
+  const [showExamples, setShowExamples] = useState(false);
 
   useExecutionSocket(setNodes);
   useWorkflowAutoSave(workflowId, nodes, edges, workflowName);
@@ -78,6 +80,12 @@ export default function FlowEditor() {
       headers: { Authorization: `Bearer ${token}` },
     });
     setHistory(res.data);
+  };
+
+  const loadExample = (example: any) => {
+    setNodes(example.nodes);
+    setEdges(example.edges);
+    setShowExamples(false);
   };
 
   const runWorkflow = async () => {
@@ -195,6 +203,7 @@ export default function FlowEditor() {
           setNodes={setNodes}
           setEdges={setEdges}
           onReset={resetCanvas}
+          openTemplates={() => setShowExamples(true)}
         />
 
         <div className="flex flex-1 min-h-0">
@@ -225,6 +234,13 @@ export default function FlowEditor() {
         <ExecutionModal
           execution={selectedExecution}
           onClose={() => setSelectedExecution(null)}
+        />
+      )}
+
+      {showExamples && (
+        <ExamplesModal
+          onClose={() => setShowExamples(false)}
+          loadExample={loadExample}
         />
       )}
     </div>

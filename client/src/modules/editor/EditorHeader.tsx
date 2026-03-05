@@ -1,4 +1,4 @@
-import { Upload, RotateCcw, Film, ArrowLeft } from "lucide-react";
+import { Upload, RotateCcw, Film, ArrowLeft, Layers } from "lucide-react";
 import { useRef, useState } from "react";
 import { auth } from "../../lib/firebase";
 import api from "../../lib/api";
@@ -21,8 +21,10 @@ export default function EditorHeader({
   setNodes,
   setEdges,
   onReset,
+  openTemplates,
 }: any) {
   const fileInputRef = useRef<HTMLInputElement>(null);
+
   const [importing, setImporting] = useState(false);
   const [showExport, setShowExport] = useState(false);
   const [exporting, setExporting] = useState<null | "png" | "gif" | "mp4">(
@@ -81,9 +83,17 @@ export default function EditorHeader({
 
       <div className="flex items-center gap-4">
         <button
+          onClick={openTemplates}
+          className="px-4 py-2 rounded-xl bg-slate-800/60 hover:bg-slate-700 transition-all flex items-center gap-2 hover:shadow-[0_0_20px_rgba(59,130,246,0.3)]"
+        >
+          <Layers size={16} />
+          Templates
+        </button>
+
+        <button
           onClick={handleImportClick}
           disabled={importing}
-          className="px-4 py-2 rounded-xl bg-slate-800/60 hover:bg-slate-700 transition-all duration-300 hover:shadow-lg flex items-center gap-2"
+          className="px-4 py-2 rounded-xl bg-slate-800/60 hover:bg-slate-700 transition-all flex items-center gap-2"
         >
           <Upload size={16} />
           {importing ? "Importing..." : "Import"}
@@ -92,27 +102,29 @@ export default function EditorHeader({
         <div className="relative">
           <button
             onClick={() => setShowExport((prev) => !prev)}
-            className="px-4 py-2 rounded-xl bg-slate-800/60 hover:bg-slate-700 transition-all duration-300 flex items-center gap-2 hover:shadow-[0_0_20px_rgba(59,130,246,0.3)]"
+            className="px-4 py-2 rounded-xl bg-slate-800/60 hover:bg-slate-700 transition-all flex items-center gap-2 hover:shadow-[0_0_20px_rgba(59,130,246,0.3)]"
           >
             <Film size={16} />
             Export
           </button>
 
           {showExport && (
-            <div className="absolute right-0 mt-3 w-48 bg-slate-900/95 backdrop-blur-xl border border-white/10 rounded-xl shadow-2xl overflow-hidden animate-fade-in">
+            <div className="absolute right-0 mt-3 w-48 bg-slate-900/95 backdrop-blur-xl border border-white/10 rounded-xl shadow-2xl overflow-hidden">
               {["png", "gif", "mp4"].map((type) => (
                 <button
                   key={type}
                   disabled={!!exporting}
                   onClick={async () => {
                     setExporting(type as any);
+
                     if (type === "png") await exportAsImage();
                     if (type === "gif") await exportAsGIF();
                     if (type === "mp4") await exportAsMP4();
+
                     setExporting(null);
                     setShowExport(false);
                   }}
-                  className="w-full px-4 py-3 text-left hover:bg-slate-800 transition flex items-center gap-2"
+                  className="w-full px-4 py-3 text-left hover:bg-slate-800 transition"
                 >
                   {type.toUpperCase()}
                 </button>
@@ -121,17 +133,15 @@ export default function EditorHeader({
           )}
         </div>
 
-        <div className="relative">
-          <select
-            value={replaySpeed}
-            onChange={(e) => setReplaySpeed(Number(e.target.value))}
-            className="appearance-none bg-slate-800/60 hover:bg-slate-700 px-4 py-2 rounded-xl text-white pr-8 transition-all"
-          >
-            <option value={300}>2x</option>
-            <option value={600}>1x</option>
-            <option value={1000}>0.5x</option>
-          </select>
-        </div>
+        <select
+          value={replaySpeed}
+          onChange={(e) => setReplaySpeed(Number(e.target.value))}
+          className="appearance-none bg-slate-800/60 hover:bg-slate-700 px-4 py-2 rounded-xl text-white pr-8 transition-all"
+        >
+          <option value={300}>2x</option>
+          <option value={600}>1x</option>
+          <option value={1000}>0.5x</option>
+        </select>
 
         <button
           onClick={replay}
