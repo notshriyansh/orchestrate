@@ -536,4 +536,162 @@ export const WORKFLOW_EXAMPLES: WorkflowExample[] = [
       { id: "e4", source: "3", target: "5", type: "custom" },
     ],
   },
+  {
+    id: "distributed-api",
+    name: "Distributed API System",
+    description: "CDN → Gateway → LB → Services → Databases",
+
+    nodes: [
+      {
+        id: "1",
+        type: "http",
+        position: { x: 0, y: 200 },
+        data: { label: "User Request", status: "idle", health: "healthy" },
+      },
+
+      {
+        id: "2",
+        type: "cdn",
+        position: { x: 220, y: 200 },
+        data: { label: "CDN Edge", status: "idle", health: "healthy" },
+      },
+
+      {
+        id: "3",
+        type: "apigateway",
+        position: { x: 440, y: 200 },
+        data: { label: "API Gateway", status: "idle", health: "healthy" },
+      },
+
+      {
+        id: "4",
+        type: "loadbalancer",
+        position: { x: 660, y: 200 },
+        data: { label: "Load Balancer", status: "idle", health: "healthy" },
+      },
+
+      {
+        id: "5",
+        type: "appserver",
+        position: { x: 900, y: 80 },
+        data: { label: "User Service", status: "idle", health: "healthy" },
+      },
+
+      {
+        id: "6",
+        type: "appserver",
+        position: { x: 900, y: 320 },
+        data: { label: "Order Service", status: "idle", health: "healthy" },
+      },
+
+      {
+        id: "7",
+        type: "sqldb",
+        position: { x: 1150, y: 80 },
+        data: { label: "User DB", status: "idle", health: "healthy" },
+      },
+
+      {
+        id: "8",
+        type: "sqldb",
+        position: { x: 1150, y: 320 },
+        data: { label: "Order DB", status: "idle", health: "healthy" },
+      },
+    ],
+
+    edges: [
+      { id: "e1", source: "1", target: "2", type: "custom" },
+      { id: "e2", source: "2", target: "3", type: "custom" },
+      { id: "e3", source: "3", target: "4", type: "custom" },
+      { id: "e4", source: "4", target: "5", type: "custom" },
+      { id: "e5", source: "4", target: "6", type: "custom" },
+      { id: "e6", source: "5", target: "7", type: "custom" },
+      { id: "e7", source: "6", target: "8", type: "custom" },
+    ],
+  },
+  {
+    id: "chat-architecture",
+    name: "Real-Time Chat System",
+    description: "Gateway → Queue → Workers → Cache → DB",
+
+    nodes: [
+      {
+        id: "1",
+        type: "http",
+        position: { x: 0, y: 200 },
+        data: { label: "Client", status: "idle", health: "healthy" },
+      },
+
+      {
+        id: "2",
+        type: "apigateway",
+        position: { x: 220, y: 200 },
+        data: { label: "API Gateway", status: "idle", health: "healthy" },
+      },
+
+      {
+        id: "3",
+        type: "queue",
+        position: { x: 450, y: 200 },
+        data: { label: "Message Queue", status: "idle", health: "healthy" },
+      },
+
+      {
+        id: "4",
+        type: "worker",
+        position: { x: 700, y: 80 },
+        data: { label: "Message Worker", status: "idle", health: "healthy" },
+      },
+
+      {
+        id: "5",
+        type: "worker",
+        position: { x: 700, y: 320 },
+        data: {
+          label: "Notification Worker",
+          status: "idle",
+          health: "healthy",
+        },
+      },
+
+      {
+        id: "6",
+        type: "redis",
+        position: { x: 950, y: 80 },
+        data: { label: "Redis Cache", status: "idle", health: "healthy" },
+      },
+
+      {
+        id: "7",
+        type: "sqldb",
+        position: { x: 950, y: 320 },
+        data: { label: "Chat Database", status: "idle", health: "healthy" },
+      },
+
+      {
+        id: "8",
+        type: "eventbus",
+        position: { x: 1150, y: 200 },
+        data: { label: "Event Bus", status: "idle", health: "healthy" },
+      },
+
+      {
+        id: "9",
+        type: "monitoring",
+        position: { x: 1350, y: 200 },
+        data: { label: "Monitoring", status: "idle", health: "healthy" },
+      },
+    ],
+
+    edges: [
+      { id: "e1", source: "1", target: "2", type: "custom" },
+      { id: "e2", source: "2", target: "3", type: "custom" },
+      { id: "e3", source: "3", target: "4", type: "custom" },
+      { id: "e4", source: "3", target: "5", type: "custom" },
+      { id: "e5", source: "4", target: "6", type: "custom" },
+      { id: "e6", source: "4", target: "7", type: "custom" },
+      { id: "e7", source: "5", target: "8", type: "custom" },
+      { id: "e8", source: "8", target: "9", type: "custom" },
+    ],
+  },
 ];

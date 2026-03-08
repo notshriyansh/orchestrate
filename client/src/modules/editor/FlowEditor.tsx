@@ -39,7 +39,7 @@ export default function FlowEditor() {
     const unsub = onAuthStateChanged(auth, async (user) => {
       if (!user) return;
 
-      const token = await user.getIdToken();
+      const token = await user.getIdToken(false);
 
       try {
         if (id === "new") {
@@ -91,7 +91,7 @@ export default function FlowEditor() {
   const runWorkflow = async () => {
     if (!workflowId) return;
 
-    const token = await auth.currentUser?.getIdToken();
+    const token = await auth.currentUser?.getIdToken(false);
     if (!token) return;
 
     setNodes((prev) =>

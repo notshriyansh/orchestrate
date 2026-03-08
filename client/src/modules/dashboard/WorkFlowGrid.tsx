@@ -14,16 +14,21 @@ export default function WorkflowGrid() {
       const user = auth.currentUser;
       if (!user) return;
 
-      const token = await user.getIdToken();
+      try {
+        const token = await user.getIdToken(false);
 
-      const res = await api.get("/api/workflows", {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
+        const res = await api.get("/api/workflows", {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
 
-      setWorkflows(res.data);
-      setLoading(false);
+        setWorkflows(res.data);
+      } catch (err) {
+        console.error(err);
+      } finally {
+        setLoading(false);
+      }
     };
 
     fetchWorkflows();

@@ -11,7 +11,7 @@ export default function MetricsBar() {
 
   useEffect(() => {
     const load = async () => {
-      const token = await auth.currentUser?.getIdToken();
+      const token = await auth.currentUser?.getIdToken(false);
       if (!token) return;
 
       const res = await api.get("/api/workflows", {

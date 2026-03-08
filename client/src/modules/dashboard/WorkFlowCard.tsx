@@ -14,7 +14,7 @@ export default function WorkflowCard({ workflow }: any) {
     const confirmDelete = window.confirm("Delete this workflow permanently?");
     if (!confirmDelete) return;
 
-    const token = await auth.currentUser?.getIdToken();
+    const token = await auth.currentUser?.getIdToken(false);
     if (!token) return;
 
     await api.delete(`/api/workflows/${workflow.id}`, {

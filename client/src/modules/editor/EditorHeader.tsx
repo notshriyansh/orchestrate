@@ -47,7 +47,7 @@ export default function EditorHeader({
     try {
       const text = await file.text();
       const parsed = JSON.parse(text);
-      const token = await auth.currentUser?.getIdToken();
+      const token = await auth.currentUser?.getIdToken(false);
       if (!token) return;
 
       const res = await api.post(`/api/import/postman/${workflowId}`, parsed, {
