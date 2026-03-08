@@ -1,9 +1,14 @@
 import { useState } from "react";
-import { createUserWithEmailAndPassword } from "firebase/auth";
+import {
+  createUserWithEmailAndPassword,
+  signInWithPopup,
+  GoogleAuthProvider,
+} from "firebase/auth";
 import { auth } from "../../lib/firebase";
 import Button from "../../components/ui/Button";
 import Input from "../../components/ui/Input";
 import { Link, useNavigate } from "react-router-dom";
+import { FcGoogle } from "react-icons/fc";
 
 export default function SignUpForm() {
   const [email, setEmail] = useState("");
@@ -12,6 +17,7 @@ export default function SignUpForm() {
   const [loading, setLoading] = useState(false);
 
   const navigate = useNavigate();
+  const googleProvider = new GoogleAuthProvider();
 
   const handleSignUp = async () => {
     setError(null);
@@ -27,6 +33,17 @@ export default function SignUpForm() {
     }
   };
 
+  const handleGoogleSignup = async () => {
+    setError(null);
+
+    try {
+      await signInWithPopup(auth, googleProvider);
+      navigate("/dashboard");
+    } catch (err: any) {
+      setError(err.message);
+    }
+  };
+
   return (
     <>
       <h2 className="text-3xl font-semibold text-center text-white mb-8">
@@ -34,6 +51,20 @@ export default function SignUpForm() {
       </h2>
 
       <div className="space-y-4">
+        <button
+          onClick={handleGoogleSignup}
+          className="w-full flex items-center justify-center gap-2 py-3 rounded-lg border border-white/10 bg-[#0f172a] hover:border-white/30 transition"
+        >
+          <FcGoogle size={20} />
+          Continue with Google
+        </button>
+
+        <div className="flex items-center gap-3 text-white/30 text-sm">
+          <div className="flex-1 h-px bg-white/10" />
+          or
+          <div className="flex-1 h-px bg-white/10" />
+        </div>
+
         <Input
           placeholder="Email"
           value={email}

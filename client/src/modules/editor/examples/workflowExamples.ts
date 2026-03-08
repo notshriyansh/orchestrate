@@ -694,4 +694,165 @@ export const WORKFLOW_EXAMPLES: WorkflowExample[] = [
       { id: "e8", source: "8", target: "9", type: "custom" },
     ],
   },
+  {
+    id: "aws-production-stack",
+    name: "Production Web Architecture",
+    description: "CDN → Gateway → Microservices → Queue → Workers → Databases",
+
+    nodes: [
+      {
+        id: "1",
+        type: "http",
+        position: { x: 0, y: 300 },
+        data: { label: "Users", status: "idle", health: "healthy" },
+      },
+
+      {
+        id: "2",
+        type: "cdn",
+        position: { x: 220, y: 300 },
+        data: { label: "CDN Edge", status: "idle", health: "healthy" },
+      },
+
+      {
+        id: "3",
+        type: "firewall",
+        position: { x: 420, y: 300 },
+        data: { label: "Firewall", status: "idle", health: "healthy" },
+      },
+
+      {
+        id: "4",
+        type: "apigateway",
+        position: { x: 620, y: 300 },
+        data: { label: "API Gateway", status: "idle", health: "healthy" },
+      },
+
+      {
+        id: "5",
+        type: "loadbalancer",
+        position: { x: 820, y: 300 },
+        data: { label: "Load Balancer", status: "idle", health: "healthy" },
+      },
+
+      {
+        id: "6",
+        type: "appserver",
+        position: { x: 1040, y: 120 },
+        data: { label: "Auth Service", status: "idle", health: "healthy" },
+      },
+
+      {
+        id: "7",
+        type: "appserver",
+        position: { x: 1040, y: 300 },
+        data: { label: "User Service", status: "idle", health: "healthy" },
+      },
+
+      {
+        id: "8",
+        type: "appserver",
+        position: { x: 1040, y: 480 },
+        data: { label: "Order Service", status: "idle", health: "healthy" },
+      },
+
+      {
+        id: "9",
+        type: "redis",
+        position: { x: 1240, y: 120 },
+        data: { label: "Redis Cache", status: "idle", health: "healthy" },
+      },
+
+      {
+        id: "10",
+        type: "sqldb",
+        position: { x: 1240, y: 300 },
+        data: { label: "Primary Database", status: "idle", health: "healthy" },
+      },
+
+      {
+        id: "11",
+        type: "sqldb",
+        position: { x: 1240, y: 480 },
+        data: { label: "Analytics DB", status: "idle", health: "healthy" },
+      },
+
+      {
+        id: "12",
+        type: "queue",
+        position: { x: 1450, y: 300 },
+        data: { label: "Message Queue", status: "idle", health: "healthy" },
+      },
+
+      {
+        id: "13",
+        type: "worker",
+        position: { x: 1650, y: 160 },
+        data: { label: "Email Worker", status: "idle", health: "healthy" },
+      },
+
+      {
+        id: "14",
+        type: "worker",
+        position: { x: 1650, y: 440 },
+        data: { label: "Analytics Worker", status: "idle", health: "healthy" },
+      },
+
+      {
+        id: "15",
+        type: "objectstore",
+        position: { x: 1850, y: 120 },
+        data: { label: "Object Storage", status: "idle", health: "healthy" },
+      },
+
+      {
+        id: "16",
+        type: "vector",
+        position: { x: 1850, y: 300 },
+        data: { label: "Vector DB", status: "idle", health: "healthy" },
+      },
+
+      {
+        id: "17",
+        type: "monitoring",
+        position: { x: 1850, y: 480 },
+        data: { label: "Monitoring", status: "idle", health: "healthy" },
+      },
+
+      {
+        id: "18",
+        type: "scheduler",
+        position: { x: 1650, y: 600 },
+        data: { label: "Scheduler", status: "idle", health: "healthy" },
+      },
+    ],
+
+    edges: [
+      { id: "e1", source: "1", target: "2", type: "custom" },
+      { id: "e2", source: "2", target: "3", type: "custom" },
+      { id: "e3", source: "3", target: "4", type: "custom" },
+      { id: "e4", source: "4", target: "5", type: "custom" },
+
+      { id: "e5", source: "5", target: "6", type: "custom" },
+      { id: "e6", source: "5", target: "7", type: "custom" },
+      { id: "e7", source: "5", target: "8", type: "custom" },
+
+      { id: "e8", source: "6", target: "9", type: "custom" },
+      { id: "e9", source: "7", target: "10", type: "custom" },
+      { id: "e10", source: "8", target: "11", type: "custom" },
+
+      { id: "e11", source: "7", target: "12", type: "custom" },
+
+      { id: "e12", source: "12", target: "13", type: "custom" },
+      { id: "e13", source: "12", target: "14", type: "custom" },
+
+      { id: "e14", source: "13", target: "15", type: "custom" },
+      { id: "e15", source: "14", target: "16", type: "custom" },
+
+      { id: "e16", source: "10", target: "17", type: "custom" },
+      { id: "e17", source: "14", target: "17", type: "custom" },
+
+      { id: "e18", source: "18", target: "12", type: "custom" },
+    ],
+  },
 ];

@@ -9,7 +9,6 @@ export default function AuthLayout({ children }: { children: ReactNode }) {
       />
 
       <div className="relative z-10 flex min-h-screen">
-        {/* LEFT SIDE */}
         <div className="hidden lg:flex flex-col justify-center px-16 w-1/2">
           <h1 className="text-4xl font-semibold leading-tight mb-6">
             Design. Orchestrate. Execute.

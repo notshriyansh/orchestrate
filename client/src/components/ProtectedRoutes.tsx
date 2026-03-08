@@ -1,37 +1,21 @@
-import { useEffect, useState } from "react";
 import { Navigate } from "react-router-dom";
-import { onAuthStateChanged } from "firebase/auth";
-import type { User } from "firebase/auth";
-import { auth } from "../lib/firebase";
+import { useAuth } from "../context/AuthContext";
 
-interface Props {
-  children: React.ReactNode;
-}
+export default function ProtectedRoute({ children }: any) {
+  const { user, loading } = useAuth();
 
-export default function ProtectedRoute({ children }: Props) {
-  const [user, setUser] = useState<User | null | undefined>(undefined);
-
-  useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (firebaseUser) => {
-      setUser(firebaseUser ?? null);
-    });
-
-    return () => unsubscribe();
-  }, []);
-
-  if (user === undefined) {
+  if (loading) {
     return (
-      <div
-        style={{
-          height: "100vh",
-          display: "flex",
-          justifyContent: "center",
-          alignItems: "center",
-          background: "#0f172a",
-          color: "white",
-        }}
-      >
-        Checking authentication...
+      <div className="h-screen flex flex-col items-center justify-center bg-slate-950 text-white">
+        <h1 className="text-4xl font-bold mb-6 tracking-wide">
+          orchestrate<span className="text-blue-500">.</span>
+        </h1>
+
+        <p className="text-white/50 mb-4 text-sm tracking-widest">LOADING...</p>
+
+        <div className="w-64 h-1 bg-white/10 rounded-full overflow-hidden">
+          <div className="h-full bg-blue-500 animate-pulse w-2/3" />
+        </div>
       </div>
     );
   }
@@ -40,5 +24,5 @@ export default function ProtectedRoute({ children }: Props) {
     return <Navigate to="/signin" replace />;
   }
 
-  return <>{children}</>;
+  return children;
 }

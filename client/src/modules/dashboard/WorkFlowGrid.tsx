@@ -36,8 +36,18 @@ export default function WorkflowGrid() {
 
   if (loading) {
     return (
-      <div className="text-white/40 text-center py-20">
-        Loading workflows...
+      <div className="grid grid-cols-3 gap-6 p-8">
+        {[...Array(6)].map((_, i) => (
+          <div
+            key={i}
+            className="h-36 rounded-xl bg-slate-900 border border-white/10 animate-pulse"
+          >
+            <div className="p-6 space-y-3">
+              <div className="h-4 w-2/3 bg-slate-700 rounded"></div>
+              <div className="h-3 w-1/2 bg-slate-700 rounded"></div>
+            </div>
+          </div>
+        ))}
       </div>
     );
   }
