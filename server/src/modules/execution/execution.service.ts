@@ -19,6 +19,7 @@ export interface ExecutionOptions {
   mockMode?: boolean;
   allowInsecureSSL?: boolean;
   collectionVariables?: Record<string, any>;
+  executionId?: string;
 }
 
 export async function executeWorkflow(
@@ -30,6 +31,7 @@ export async function executeWorkflow(
     mockMode = false,
     allowInsecureSSL = false,
     collectionVariables = {},
+    executionId,
   } = options;
 
   const results: any[] = [];
@@ -37,6 +39,7 @@ export async function executeWorkflow(
   const visited = new Set<string>();
 
   const adjacency = new Map<string, ExecutionEdge[]>();
+  const nodeById = new Map(nodes.map((node) => [node.id, node]));
 
   edges.forEach((edge) => {
     if (!adjacency.has(edge.source)) {
@@ -54,7 +57,19 @@ export async function executeWorkflow(
     }
   }
 
-  async function executeNode(node: ExecutionNode) {
+  function randomDelay() {
+    return Math.floor(Math.random() * 601) + 200;
+  }
+
+  function getNodeSettings(node: ExecutionNode) {
+    return {
+      delay: Number(node.data?.delay) || randomDelay(),
+      retries: Number(node.data?.retries) || 0,
+      continueOnFailure: node.data?.continueOnFailure ?? true,
+    };
+  }
+
+  async function executeNodeOnce(node: ExecutionNode) {
     const start = Date.now();
 
     if (node.type === "http") {
@@ -64,8 +79,6 @@ export async function executeWorkflow(
       });
 
       const timeout = resolvedData.timeout ?? 10000;
-      const retries = resolvedData.retries ?? 0;
-      const continueOnFailure = resolvedData.continueOnFailure ?? true;
 
       if (!resolvedData?.url) {
         return {
@@ -92,54 +105,41 @@ export async function executeWorkflow(
         };
       }
 
-      let attempt = 0;
-      let lastError: any;
+      try {
+        const response = await axios({
+          method: resolvedData.method || "GET",
+          url: resolvedData.url,
+          headers: resolvedData.headers,
+          data: resolvedData.body,
+          timeout,
+          validateStatus: () => true,
+          httpsAgent: allowInsecureSSL
+            ? new https.Agent({ rejectUnauthorized: false })
+            : undefined,
+        });
 
-      while (attempt <= retries) {
-        try {
-          const response = await axios({
-            method: resolvedData.method || "GET",
-            url: resolvedData.url,
-            headers: resolvedData.headers,
-            data: resolvedData.body,
-            timeout,
-            validateStatus: () => true,
-            httpsAgent: allowInsecureSSL
-              ? new https.Agent({ rejectUnauthorized: false })
-              : undefined,
-          });
+        const duration = Date.now() - start;
 
-          const duration = Date.now() - start;
+        const status =
+          response.status >= 200 && response.status < 300 ? "success" : "error";
 
-          const status =
-            response.status >= 200 && response.status < 300
-              ? "success"
-              : "error";
-
-          if (status === "success") {
-            context[node.id] = response.data;
-          }
-
-          return {
-            status,
-            response: response.data,
-            httpStatus: response.status,
-            duration,
-            attempt: attempt + 1,
-          };
-        } catch (error: any) {
-          lastError = error;
-          attempt++;
+        if (status === "success") {
+          context[node.id] = response.data;
         }
-      }
 
-      return {
-        status: "error",
-        error: lastError?.message || "Request failed",
-        duration: Date.now() - start,
-        attempt,
-        continueOnFailure,
-      };
+        return {
+          status,
+          response: response.data,
+          httpStatus: response.status,
+          duration,
+        };
+      } catch (error: any) {
+        return {
+          status: "error",
+          error: error?.message || "Request failed",
+          duration: Date.now() - start,
+        };
+      }
     }
 
     if (node.type === "condition") {
@@ -167,16 +167,47 @@ export async function executeWorkflow(
     };
   }
 
-  async function dfs(nodeId: string) {
-    if (visited.has(nodeId)) return;
+  async function executeNode(node: ExecutionNode) {
+    const { delay, retries, continueOnFailure } = getNodeSettings(node);
+
+    await new Promise((res) => setTimeout(res, delay));
+
+    let attempt = 0;
+    let result: any = null;
+
+    while (attempt <= retries) {
+      attempt++;
+      result = await executeNodeOnce(node);
+
+      if (result.status !== "error") {
+        break;
+      }
+    }
+
+    return {
+      ...result,
+      attempt,
+      delay,
+      continueOnFailure,
+    };
+  }
+
+  const targets = new Set(edges.map((e) => e.target));
+  const roots = nodes.filter((n) => !targets.has(n.id));
+  const queue = roots.map((node) => node.id);
+
+  while (queue.length) {
+    const nodeId = queue.shift()!;
+
+    if (visited.has(nodeId)) continue;
     visited.add(nodeId);
 
-    const node = nodes.find((n) => n.id === nodeId);
-    if (!node) return;
+    const node = nodeById.get(nodeId);
+    if (!node) continue;
 
     const result = await executeNode(node);
 
-    const log = { nodeId, ...result };
+    const log = { executionId, nodeId, ...result };
     results.push(log);
     broadcast(log);
 
@@ -189,22 +220,15 @@ export async function executeWorkflow(
           (!result.result && edge.sourceHandle === "false"),
       );
 
-      await Promise.all(filtered.map((e) => dfs(e.target)));
+      queue.push(...filtered.map((edge) => edge.target));
     } else if (
       result.status === "error" &&
       result.continueOnFailure === false
     ) {
-      return;
+      continue;
     } else {
-      await Promise.all(nextEdges.map((e) => dfs(e.target)));
+      queue.push(...nextEdges.map((edge) => edge.target));
     }
-  }
-
-  const targets = new Set(edges.map((e) => e.target));
-  const roots = nodes.filter((n) => !targets.has(n.id));
-
-  for (const root of roots) {
-    await dfs(root.id);
   }
 
   return results;
