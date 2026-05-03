@@ -34,12 +34,42 @@ router.get("/", authenticate, async (req: AuthRequest, res) => {
       return res.status(401).json({ message: "Unauthorized" });
     }
 
-    const workflows = await prisma.workflow.findMany({
+    const workflowRows = await prisma.workflow.findMany({
       where: { userId: req.user.id },
       orderBy: { updatedAt: "desc" },
+      select: {
+        id: true,
+        name: true,
+        updatedAt: true,
+        executions: {
+          orderBy: { startedAt: "desc" },
+          take: 1,
+          select: { status: true },
+        },
+      },
     });
 
-    res.json(workflows);
+    const workflows = workflowRows.map((workflow) => {
+      const lastStatus = workflow.executions[0]?.status || "idle";
+
+      return {
+        id: workflow.id,
+        name: workflow.name,
+        updatedAt: workflow.updatedAt,
+        lastStatus,
+      };
+    });
+
+    const metrics = workflows.reduce(
+      (totals, workflow) => {
+        if (workflow.lastStatus === "success") totals.success++;
+        if (workflow.lastStatus === "failed") totals.failed++;
+        return totals;
+      },
+      { total: workflows.length, success: 0, failed: 0 },
+    );
+
+    res.json({ workflows, metrics });
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: "Failed to fetch workflows" });

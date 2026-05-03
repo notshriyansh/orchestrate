@@ -1,38 +1,18 @@
-import { useEffect, useState } from "react";
-import { auth } from "../../lib/firebase";
-import api from "../../lib/api";
+import { useState } from "react";
 import WorkflowCard from "./WorkFlowCard";
 import CreateWorkflowCard from "./CreateWorkFlowCard";
+import type { Workflow } from "../workflow/api";
 
-export default function WorkflowGrid() {
-  const [workflows, setWorkflows] = useState<any[]>([]);
-  const [loading, setLoading] = useState(true);
+export default function WorkflowGrid({
+  workflows,
+  loading,
+  onDelete,
+}: {
+  workflows: Workflow[];
+  loading: boolean;
+  onDelete: (workflowId: string) => void;
+}) {
   const [search, setSearch] = useState("");
-
-  useEffect(() => {
-    const fetchWorkflows = async () => {
-      const user = auth.currentUser;
-      if (!user) return;
-
-      try {
-        const token = await user.getIdToken(false);
-
-        const res = await api.get("/api/workflows", {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
-
-        setWorkflows(res.data);
-      } catch (err) {
-        console.error(err);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchWorkflows();
-  }, []);
 
   if (loading) {
     return (
@@ -81,7 +61,7 @@ export default function WorkflowGrid() {
       <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
         <CreateWorkflowCard />
         {filtered.map((w) => (
-          <WorkflowCard key={w.id} workflow={w} />
+          <WorkflowCard key={w.id} workflow={w} onDelete={onDelete} />
         ))}
       </div>
     </>
