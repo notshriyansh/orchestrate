@@ -32,22 +32,16 @@ export default function FlowEditor() {
   const [replaySpeed, setReplaySpeed] = useState(600);
   const [showExamples, setShowExamples] = useState(false);
 
-  useExecutionSocket(setNodes);
+  useExecutionSocket(setNodes, setEdges);
   useWorkflowAutoSave(workflowId, nodes, edges, workflowName);
 
   useEffect(() => {
     const unsub = onAuthStateChanged(auth, async (user) => {
       if (!user) return;
 
-      const token = await user.getIdToken(false);
-
       try {
         if (id === "new") {
-          const res = await api.post(
-            "/api/workflows",
-            {},
-            { headers: { Authorization: `Bearer ${token}` } },
-          );
+          const res = await api.post("/api/workflows", {});
 
           navigate(`/editor/${res.data.id}`, { replace: true });
           return;
@@ -55,16 +49,14 @@ export default function FlowEditor() {
 
         if (!id) return;
 
-        const res = await api.get(`/api/workflows/${id}`, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
+        const res = await api.get(`/api/workflows/${id}`);
 
         setWorkflowId(res.data.id);
         setNodes(res.data.nodes || []);
         setEdges(res.data.edges || []);
         setWorkflowName(res.data.name || "Untitled Workflow");
 
-        await loadHistory(res.data.id, token);
+        await loadHistory(res.data.id);
       } catch (err) {
         console.error("Workflow load failed", err);
       } finally {
@@ -75,10 +67,8 @@ export default function FlowEditor() {
     return () => unsub();
   }, [id]);
 
-  const loadHistory = async (wid: string, token: string) => {
-    const res = await api.get(`/api/execute/history/${wid}`, {
-      headers: { Authorization: `Bearer ${token}` },
-    });
+  const loadHistory = async (wid: string) => {
+    const res = await api.get(`/api/execute/history/${wid}`);
     setHistory(res.data);
   };
 
@@ -89,10 +79,7 @@ export default function FlowEditor() {
   };
 
   const runWorkflow = async () => {
-    if (!workflowId) return;
-
-    const token = await auth.currentUser?.getIdToken(false);
-    if (!token) return;
+    if (!workflowId || isRunning) return;
 
     setNodes((prev) =>
       prev.map((n) => ({
@@ -100,17 +87,21 @@ export default function FlowEditor() {
         data: { ...n.data, status: "idle" },
       })),
     );
+    setEdges((prev) =>
+      prev.map((e) => ({
+        ...e,
+        data: { ...e.data, active: false },
+      })),
+    );
 
     setIsRunning(true);
 
-    await api.post(
-      `/api/execute/${workflowId}`,
-      {},
-      { headers: { Authorization: `Bearer ${token}` } },
-    );
-
-    await loadHistory(workflowId, token);
-    setIsRunning(false);
+    try {
+      await api.post(`/api/execute/${workflowId}`, {});
+      await loadHistory(workflowId);
+    } finally {
+      setIsRunning(false);
+    }
   };
 
   const resetCanvas = () => {

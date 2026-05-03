@@ -3,13 +3,21 @@ import api from "../../lib/api";
 export interface Workflow {
   id: string;
   name: string;
-  nodes: any;
-  edges: any;
-  createdAt: string;
+  updatedAt: string;
+  lastStatus: "success" | "failed" | "idle";
+}
+
+export interface WorkflowMetrics {
+  total: number;
+  success: number;
+  failed: number;
 }
 
 export const getWorkflows = async () => {
-  const res = await api.get<Workflow[]>("/api/workflows");
+  const res = await api.get<{
+    workflows: Workflow[];
+    metrics: WorkflowMetrics;
+  }>("/api/workflows");
   return res.data;
 };
 

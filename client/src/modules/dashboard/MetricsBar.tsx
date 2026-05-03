@@ -1,43 +1,6 @@
-import { useEffect, useState } from "react";
-import api from "../../lib/api";
-import { auth } from "../../lib/firebase";
+import type { WorkflowMetrics } from "../workflow/api";
 
-export default function MetricsBar() {
-  const [metrics, setMetrics] = useState({
-    total: 0,
-    success: 0,
-    failed: 0,
-  });
-
-  useEffect(() => {
-    const load = async () => {
-      const token = await auth.currentUser?.getIdToken(false);
-      if (!token) return;
-
-      const res = await api.get("/api/workflows", {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-
-      const workflows = res.data;
-
-      const success = workflows.filter(
-        (w: any) => w.lastStatus === "success",
-      ).length;
-
-      const failed = workflows.filter(
-        (w: any) => w.lastStatus === "failed",
-      ).length;
-
-      setMetrics({
-        total: workflows.length,
-        success,
-        failed,
-      });
-    };
-
-    load();
-  }, []);
-
+export default function MetricsBar({ metrics }: { metrics: WorkflowMetrics }) {
   return (
     <div className="grid grid-cols-3 gap-6 mb-10">
       <MetricCard label="Total Workflows" value={metrics.total} />

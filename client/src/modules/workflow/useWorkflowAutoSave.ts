@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import api from "../../lib/api";
 
 export default function useWorkflowAutoSave(
@@ -7,8 +7,13 @@ export default function useWorkflowAutoSave(
   edges: any[],
   workflowName: string,
 ) {
+  const lastSaved = useRef("");
+
   useEffect(() => {
     if (!id) return;
+
+    const nextSnapshot = JSON.stringify({ workflowName, nodes, edges });
+    if (nextSnapshot === lastSaved.current) return;
 
     const timeout = setTimeout(() => {
       api.put(`/api/workflows/${id}`, {
@@ -16,7 +21,8 @@ export default function useWorkflowAutoSave(
         nodes,
         edges,
       });
-    }, 700);
+      lastSaved.current = nextSnapshot;
+    }, 1500);
 
     return () => clearTimeout(timeout);
   }, [id, nodes, edges, workflowName]);

@@ -2,10 +2,10 @@ import { Link } from "react-router-dom";
 import { Workflow, Trash2 } from "lucide-react";
 import { useState } from "react";
 import api from "../../lib/api";
-import { auth } from "../../lib/firebase";
 
-export default function WorkflowCard({ workflow }: any) {
+export default function WorkflowCard({ workflow, onDelete }: any) {
   const [hovered, setHovered] = useState(false);
+  const [deleting, setDeleting] = useState(false);
 
   const handleDelete = async (e: React.MouseEvent) => {
     e.preventDefault();
@@ -14,14 +14,15 @@ export default function WorkflowCard({ workflow }: any) {
     const confirmDelete = window.confirm("Delete this workflow permanently?");
     if (!confirmDelete) return;
 
-    const token = await auth.currentUser?.getIdToken(false);
-    if (!token) return;
+    setDeleting(true);
 
-    await api.delete(`/api/workflows/${workflow.id}`, {
-      headers: { Authorization: `Bearer ${token}` },
-    });
-
-    window.location.reload();
+    try {
+      await api.delete(`/api/workflows/${workflow.id}`);
+      onDelete(workflow.id);
+    } catch (err) {
+      console.error("Workflow delete failed", err);
+      setDeleting(false);
+    }
   };
 
   const status =
@@ -53,6 +54,7 @@ export default function WorkflowCard({ workflow }: any) {
     >
       <button
         onClick={handleDelete}
+        disabled={deleting}
         className={`
           absolute 
           top-4 
@@ -61,7 +63,7 @@ export default function WorkflowCard({ workflow }: any) {
           hover:text-red-400 
           transition-all 
           duration-200
-          ${hovered ? "opacity-100" : "opacity-0"}
+          ${hovered || deleting ? "opacity-100" : "opacity-0"}
         `}
       >
         <Trash2 size={16} />
@@ -75,7 +77,7 @@ export default function WorkflowCard({ workflow }: any) {
       </div>
 
       <p className="text-sm text-white/40 mb-4">
-        {workflow.nodes?.length || 0} nodes
+        Updated {new Date(workflow.updatedAt).toLocaleDateString()}
       </p>
 
       <StatusPill status={status} />

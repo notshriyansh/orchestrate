@@ -1,6 +1,5 @@
 import { Upload, RotateCcw, Film, ArrowLeft, Layers } from "lucide-react";
 import { useRef, useState } from "react";
-import { auth } from "../../lib/firebase";
 import api from "../../lib/api";
 import {
   exportAsImage,
@@ -47,12 +46,8 @@ export default function EditorHeader({
     try {
       const text = await file.text();
       const parsed = JSON.parse(text);
-      const token = await auth.currentUser?.getIdToken(false);
-      if (!token) return;
 
-      const res = await api.post(`/api/import/postman/${workflowId}`, parsed, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      const res = await api.post(`/api/import/postman/${workflowId}`, parsed);
 
       setNodes(res.data.nodes || []);
       setEdges(res.data.edges || []);
